@@ -1,0 +1,39 @@
+server:
+  port: 8223
+  servlet:
+    context-path: /api
+spring:
+  application:
+    name: zzx-picture-backend
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/zzx_picture
+    username: root
+    password: 20041123zzx.
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false    # MyBatis 下划线转驼峰
+    # 仅在开发环境开启日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: is_delete  # 全局逻辑删除
+      logic-delete-value: 1    # 逻辑删除值（默认为1）
+      logic-not-delete-value: 0  # 逻辑未删除值（默认为0）
+  mapper-locations: classpath:/mapper/**.xml
+
+# 接口文档
+knife4j:
+  enable: true
+  openapi:
+    title: 接口文档
+    email: 53525430x@gmail.com
+    concat: 赵志轩
+    version: 1.0
+    group:
+      default:
+#        group-name: default
+        api-rule: package
+        api-rule-resources:
+          - com.zzx.zzxpicturebackend.controller
