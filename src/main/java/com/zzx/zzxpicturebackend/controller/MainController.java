@@ -15,8 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class MainController {
 
 
+        /**
+     * 健康检查接口
+     *
+     * @return BaseResponse<String> 健康检查结果，成功时返回"ok"
+     */
     @GetMapping("/health")
     public BaseResponse<String> health() {
         return ResultUtils.success("ok");
     }
+
 }
