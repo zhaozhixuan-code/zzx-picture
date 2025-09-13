@@ -114,12 +114,9 @@ declare namespace API {
     userRole?: string
   }
 
-  type userRegisterUsingPOSTParams = {
-    /** checkPassword */
+  type UserRegisterRequest = {
     checkPassword?: string
-    /** userAccount */
     userAccount?: string
-    /** userPassword */
     userPassword?: string
   }
 

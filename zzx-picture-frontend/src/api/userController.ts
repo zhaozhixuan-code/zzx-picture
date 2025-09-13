@@ -107,15 +107,15 @@ export async function userLogoutUsingPost(options?: { [key: string]: any }) {
 
 /** userRegister POST /api/user/register */
 export async function userRegisterUsingPost(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.userRegisterUsingPOSTParams,
+  body: API.UserRegisterRequest,
   options?: { [key: string]: any }
 ) {
   return request<API.BaseResponseLong_>('/api/user/register', {
     method: 'POST',
-    params: {
-      ...params,
+    headers: {
+      'Content-Type': 'application/json',
     },
+    data: body,
     ...(options || {}),
   })
 }
