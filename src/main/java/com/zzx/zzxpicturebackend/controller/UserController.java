@@ -9,15 +9,13 @@ import com.zzx.zzxpicturebackend.common.ResultUtils;
 import com.zzx.zzxpicturebackend.exception.BusinessException;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
-import com.zzx.zzxpicturebackend.model.dto.user.UserAddRequest;
-import com.zzx.zzxpicturebackend.model.dto.user.UserLoginRequest;
-import com.zzx.zzxpicturebackend.model.dto.user.UserQueryRequest;
-import com.zzx.zzxpicturebackend.model.dto.user.UserUpdateRequest;
+import com.zzx.zzxpicturebackend.model.dto.user.*;
 import com.zzx.zzxpicturebackend.model.enums.UserRoleEnum;
 import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.LoginUserVO;
 import com.zzx.zzxpicturebackend.model.vo.UserVO;
 import com.zzx.zzxpicturebackend.service.UserService;
+import com.zzx.zzxpicturebackend.utils.BaseContext;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -34,13 +32,15 @@ public class UserController {
     /**
      * 用户注册
      *
-     * @param userAccount   用户账户
-     * @param userPassword  用户密码
-     * @param checkPassword 密码校验
-     * @return 新用户 id
+     * @param userRegisterRequest 注册参数
+     * @return 注册结果
      */
     @PostMapping("/register")
-    public BaseResponse<Long> userRegister(String userAccount, String userPassword, String checkPassword) {
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+        ThrowUtils.throwIf(userRegisterRequest == null, ErrorCode.PARAMS_ERROR);
+        String userAccount = userRegisterRequest.getUserAccount();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String checkPassword = userRegisterRequest.getCheckPassword();
         long userId = userService.userRegister(userAccount, userPassword, checkPassword);
         return ResultUtils.success(userId);
     }

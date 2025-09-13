@@ -1,0 +1,158 @@
+package com.zzx.zzxpicturebackend.controller;
+
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zzx.zzxpicturebackend.annotation.AuthCheck;
+import com.zzx.zzxpicturebackend.common.BaseResponse;
+import com.zzx.zzxpicturebackend.common.ResultUtils;
+import com.zzx.zzxpicturebackend.exception.ErrorCode;
+import com.zzx.zzxpicturebackend.exception.ThrowUtils;
+import com.zzx.zzxpicturebackend.model.dto.picture.PictureQueryRequest;
+import com.zzx.zzxpicturebackend.model.dto.picture.PictureUpdateRequest;
+import com.zzx.zzxpicturebackend.model.dto.picture.PictureUploadRequest;
+import com.zzx.zzxpicturebackend.model.enums.UserRoleEnum;
+import com.zzx.zzxpicturebackend.model.po.Picture;
+import com.zzx.zzxpicturebackend.model.po.User;
+import com.zzx.zzxpicturebackend.model.vo.PictureVO;
+import com.zzx.zzxpicturebackend.service.PictureService;
+import com.zzx.zzxpicturebackend.service.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+/**
+ * 照片控制器
+ */
+@RestController
+@RequestMapping("/picture")
+@Slf4j
+public class PictureController {
+
+    @Resource
+    private PictureService pictureService;
+
+    @Resource
+    private UserService userService;
+
+
+    /**
+     * 上传照片
+     *
+     * @param file                 上传的照片
+     * @param pictureUploadRequest 上传照片是否为修改
+     * @param request              请求
+     * @return 上传成功后的照片信息
+     */
+    @PostMapping("/upload")
+    public BaseResponse<PictureVO> uploadPicture(@RequestPart("file") MultipartFile file,
+                                                 PictureUploadRequest pictureUploadRequest,
+                                                 HttpServletRequest request) {
+
+        // 获取当前用户
+        User loginUser = userService.getLoginUser(request);
+        // 上传照片，返回照片信息
+        PictureVO pictureVO = pictureService.uploadPicture(file, pictureUploadRequest, loginUser);
+        return ResultUtils.success(pictureVO);
+    }
+
+    /**
+     * 删除照片
+     *
+     * @param id 照片id
+     * @return 是否删除成功
+     */
+    @PostMapping("/delete")
+    public BaseResponse<Boolean> deletePicture(@RequestBody Long id, HttpServletRequest request) {
+        Boolean result = pictureService.deletePicture(id, request);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 修改照片（管理员）
+     *
+     * @param pictureUpdateRequest
+     * @return
+     */
+    @PostMapping("/update")
+    @AuthCheck(value = UserRoleEnum.ADMIN)
+    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest) {
+        Boolean result = pictureService.updatePicture(pictureUpdateRequest);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 修改照片（用户）
+     *
+     * @param pictureUpdateRequest
+     * @return
+     */
+    @PostMapping("/edit")
+    public BaseResponse<Boolean> editPicture(@RequestBody PictureUpdateRequest pictureUpdateRequest, HttpServletRequest request) {
+        Boolean result = pictureService.editPicture(pictureUpdateRequest, request);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 获取照片信息 （管理员）
+     *
+     * @param id 照片id
+     * @return 照片信息
+     */
+    @GetMapping("/get")
+    @AuthCheck(value = UserRoleEnum.ADMIN)
+    public BaseResponse<Picture> getPictureById(Long id) {
+        ThrowUtils.throwIf(id == null, ErrorCode.PARAMS_ERROR);
+        Picture picture = pictureService.getById(id);
+        ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
+        return ResultUtils.success(picture);
+    }
+
+    /**
+     * 获取照片信息 （用户）
+     *
+     * @param id 照片id
+     * @return 照片信息
+     */
+    @GetMapping("/get/vo")
+    public BaseResponse<PictureVO> getPictureVOById(Long id) {
+        ThrowUtils.throwIf(id == null, ErrorCode.PARAMS_ERROR);
+        PictureVO pictureVO = pictureService.getPictureVOById(id);
+        return ResultUtils.success(pictureVO);
+    }
+
+    /**
+     * 获取照片列表（管理员）
+     *
+     * @param pictureQueryRequest 照片查询参数
+     * @return 照片列表
+     */
+    @PostMapping("/list/page")
+    @AuthCheck(value = UserRoleEnum.ADMIN)
+    public BaseResponse<Page<Picture>> listPictureByPage(@RequestBody PictureQueryRequest pictureQueryRequest) {
+        ThrowUtils.throwIf(pictureQueryRequest == null, ErrorCode.PARAMS_ERROR);
+        long current = pictureQueryRequest.getCurrent();
+        long size = pictureQueryRequest.getPageSize();
+        Page<Picture> pictureList = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
+        return ResultUtils.success(pictureList);
+    }
+
+    /**
+     * 获取照片列表（管理员）
+     *
+     * @param pictureQueryRequest 照片查询参数
+     * @return 照片列表
+     */
+    @PostMapping("/list/page/vo")
+    @AuthCheck(value = UserRoleEnum.ADMIN)
+    public BaseResponse<Page<PictureVO>> listPictureVOByPage(@RequestBody PictureQueryRequest pictureQueryRequest) {
+        ThrowUtils.throwIf(pictureQueryRequest == null, ErrorCode.PARAMS_ERROR);
+        long current = pictureQueryRequest.getCurrent();
+        long size = pictureQueryRequest.getPageSize();
+        Page<Picture> pictureList = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
+        Page<PictureVO> pictureVOList = pictureService.getPictureVOPage(pictureList);
+        return ResultUtils.success(pictureVOList);
+    }
+}

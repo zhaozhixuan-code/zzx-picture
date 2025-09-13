@@ -5,6 +5,8 @@ server:
 spring:
   application:
     name: zzx-picture-backend
+  profiles:
+    active: local
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/zzx_picture
@@ -37,3 +39,14 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.zzx.zzxpicturebackend.controller
+
+# 腾讯云对象存储配置
+cos:
+  client:
+    host: ${cos.client.host}
+    secret-id: ${cos.client.secret-id}
+    secret-key: ${cos.client.secret-key}
+    bucket: ${cos.client.bucket}
+    region: ${cos.client.region}
+
+

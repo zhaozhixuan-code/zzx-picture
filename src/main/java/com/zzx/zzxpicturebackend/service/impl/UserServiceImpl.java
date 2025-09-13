@@ -17,6 +17,7 @@ import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.LoginUserVO;
 import com.zzx.zzxpicturebackend.model.vo.UserVO;
 import com.zzx.zzxpicturebackend.service.UserService;
+import com.zzx.zzxpicturebackend.utils.BaseContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -127,6 +128,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         // 3. 记录登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        // 存入ThreadLocal
+        BaseContext.setCurrentId(user.getId());
         // 4. 返回脱敏后的用户信息
         LoginUserVO loginUserVo = getLoginUserVO(user);
         return loginUserVo;
@@ -176,6 +179,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         // 退出登录
         request.getSession().removeAttribute(USER_LOGIN_STATE);
+        // 从ThreadLocal移除当前用户ID
+        BaseContext.removeCurrentId();
         return true;
     }
 
@@ -193,7 +198,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         BeanUtil.copyProperties(userAddRequest, user);
         user.setUserPassword(this.getEncryptionPassword(DEFAULT_PASSWORD));
         boolean result = save(user);
-        if(!result){
+        if (!result) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR);
         }
         return user.getId();
@@ -208,7 +213,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public Wrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
         if (userQueryRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"请求参数为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
         }
         Long id = userQueryRequest.getId();
         String userAccount = userQueryRequest.getUserAccount();
@@ -236,6 +241,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         BeanUtils.copyProperties(user, userVO);
         return userVO;
     }
+
     @Override
     public List<UserVO> getUserVOList(List<User> userList) {
         if (CollUtil.isEmpty(userList)) {

@@ -1,5 +1,7 @@
 package com.zzx.zzxpicturebackend.model.dto.user;
 
+import lombok.Data;
+
 import java.io.Serializable;
 
 
@@ -7,6 +9,7 @@ import java.io.Serializable;
  * 用户注册请求数据传输类
  * 用于封装用户注册时提交的账户信息
  */
+@Data
 public class UserRegisterRequest implements Serializable {
 
     /**
