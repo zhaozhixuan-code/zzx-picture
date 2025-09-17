@@ -12,6 +12,10 @@ spring:
     url: jdbc:mysql://localhost:3306/zzx_picture
     username: root
     password: 20041123zzx.
+  # 开放更大的文件上传体积
+  servlet:
+    multipart:
+      max-file-size: 20MB
 
 mybatis-plus:
   configuration:

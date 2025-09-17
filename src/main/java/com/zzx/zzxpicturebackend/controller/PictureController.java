@@ -12,6 +12,7 @@ import com.zzx.zzxpicturebackend.model.dto.picture.PictureUpdateRequest;
 import com.zzx.zzxpicturebackend.model.dto.picture.PictureUploadRequest;
 import com.zzx.zzxpicturebackend.model.enums.UserRoleEnum;
 import com.zzx.zzxpicturebackend.model.po.Picture;
+import com.zzx.zzxpicturebackend.model.po.PictureTagCategory;
 import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.PictureVO;
 import com.zzx.zzxpicturebackend.service.PictureService;
@@ -22,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 照片控制器
@@ -140,13 +143,12 @@ public class PictureController {
     }
 
     /**
-     * 获取照片列表（管理员）
+     * 获取照片列表
      *
      * @param pictureQueryRequest 照片查询参数
      * @return 照片列表
      */
     @PostMapping("/list/page/vo")
-    @AuthCheck(value = UserRoleEnum.ADMIN)
     public BaseResponse<Page<PictureVO>> listPictureVOByPage(@RequestBody PictureQueryRequest pictureQueryRequest) {
         ThrowUtils.throwIf(pictureQueryRequest == null, ErrorCode.PARAMS_ERROR);
         long current = pictureQueryRequest.getCurrent();
@@ -155,4 +157,20 @@ public class PictureController {
         Page<PictureVO> pictureVOList = pictureService.getPictureVOPage(pictureList);
         return ResultUtils.success(pictureVOList);
     }
+
+    /**
+     * 获取预制的标签和分类
+     *
+     */
+    @GetMapping("/tag_category")
+    public BaseResponse<PictureTagCategory> listPictureTagCategory() {
+        PictureTagCategory pictureTagCategory = new PictureTagCategory();
+        List<String> tagList = Arrays.asList("热门", "搞笑", "生活", "高清", "艺术", "校园", "背景", "简历", "创意");
+        List<String> categoryList = Arrays.asList("模板", "电商", "表情包", "素材", "海报");
+        pictureTagCategory.setTagList(tagList);
+        pictureTagCategory.setCategoryList(categoryList);
+        return ResultUtils.success(pictureTagCategory);
+    }
+
+
 }

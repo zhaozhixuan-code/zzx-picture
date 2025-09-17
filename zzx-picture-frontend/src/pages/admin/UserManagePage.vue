@@ -9,7 +9,7 @@
         <a-input v-model:value="searchParams.userName" placeholder="输入用户名" allow-clear />
       </a-form-item>
       <a-form-item>
-        <a-button type="primary" html-type="submit">搜索</a-button>
+        <a-button type="primary" html-type="submit" >搜索</a-button>
       </a-form-item>
     </a-form>
     <div style="margin-bottom: 16px" />
@@ -19,10 +19,11 @@
       :data-source="dataList"
       :pagination="pagination"
       @change="doTableChange"
+      :scroll="{ x: 'max-content' }"
     >
       <!--设置内容展示格式-->
       <template #bodyCell="{ column, record }">
-        <!--        设置头像展示-->
+        <!--设置头像展示-->
         <template v-if="column.dataIndex === 'userAvatar'">
           <a-image :src="record.userAvatar" width="60px" />
         </template>
@@ -44,12 +45,14 @@
     </a-table>
   </div>
 </template>
+
 <script lang="ts" setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { deleteUserUsingPost, listUserVoByPageUsingPost } from '@/api/userController.ts'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 
+// 表格列定义
 const columns = [
   {
     title: 'id',
@@ -84,7 +87,8 @@ const columns = [
     key: 'action',
   },
 ]
-// 定义数据
+
+// 数据定义
 const dataList = ref<API.UserVO[]>([])
 const total = ref<number>(0)
 
@@ -104,20 +108,8 @@ const pagination = computed(() => {
     showTotal: (total) => `共 ${total} 条数据`,
   }
 })
-// 获取数据
-const doSearch = () => {
-  // 重置页码
-  searchParams.current = 1
-  fetchData()
-}
 
-// 表格变化
-const doTableChange = (pagination) => {
-  searchParams.current = pagination.current
-  searchParams.pageSize = pagination.pageSize
-  fetchData()
-}
-// 获取数据
+// 数据获取方法
 const fetchData = async () => {
   const res = await listUserVoByPageUsingPost({
     ...searchParams,
@@ -129,7 +121,22 @@ const fetchData = async () => {
     message.error('获取数据失败')
   }
 }
-// 删除数据
+
+// 搜索处理
+const doSearch = () => {
+  // 重置页码
+  searchParams.current = 1
+  fetchData()
+}
+
+// 表格变化处理
+const doTableChange = (pagination) => {
+  searchParams.current = pagination.current
+  searchParams.pageSize = pagination.pageSize
+  fetchData()
+}
+
+// 删除处理
 const doDelete = async (id: string) => {
   if (!id) {
     return
@@ -145,6 +152,7 @@ const doDelete = async (id: string) => {
     message.error('删除失败')
   }
 }
+
 // 页面加载时获取数据
 onMounted(() => {
   fetchData()

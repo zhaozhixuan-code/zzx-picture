@@ -69,9 +69,19 @@ const originItems = [
     title: '主页',
   },
   {
+    key: '/add_picture',
+    label: '上传图片',
+    title: '上传图片',
+  },
+  {
     key: '/admin/userManage',
     label: '用户管理',
     title: '用户管理',
+  },
+  {
+    key: '/admin/pictureManage',
+    label: '图片管理',
+    title: '图片管理',
   },
   {
     key: 'others',
@@ -130,6 +140,7 @@ const doLogout = async () => {
 .title-bar {
   display: flex;
   align-items: center;
+  margin-left: 32px;
 }
 
 .title-bar .title {
