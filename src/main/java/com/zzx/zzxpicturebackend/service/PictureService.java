@@ -3,6 +3,7 @@ package com.zzx.zzxpicturebackend.service;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzx.zzxpicturebackend.model.dto.picture.PictureQueryRequest;
+import com.zzx.zzxpicturebackend.model.dto.picture.PictureReviewRequest;
 import com.zzx.zzxpicturebackend.model.dto.picture.PictureUpdateRequest;
 import com.zzx.zzxpicturebackend.model.dto.picture.PictureUploadRequest;
 import com.zzx.zzxpicturebackend.model.po.Picture;
@@ -47,7 +48,7 @@ public interface PictureService extends IService<Picture> {
      * @param pictureUpdateRequest
      * @return
      */
-    Boolean updatePicture(PictureUpdateRequest pictureUpdateRequest);
+    Boolean updatePicture(PictureUpdateRequest pictureUpdateRequest, HttpServletRequest request);
 
 
     /**
@@ -83,4 +84,22 @@ public interface PictureService extends IService<Picture> {
      * @return
      */
     Page<PictureVO> getPictureVOPage(Page<Picture> pictureList);
+
+
+    /**
+     * 图片审核
+     *
+     * @param pictureReviewRequest
+     * @param request
+     * @return
+     */
+    Boolean doPictureReview(PictureReviewRequest pictureReviewRequest, HttpServletRequest request);
+
+    /**
+     * 填充审核参数
+     *
+     * @param picture
+     * @param loginUser
+     */
+    void fileReviewParams(Picture picture, User loginUser);
 }

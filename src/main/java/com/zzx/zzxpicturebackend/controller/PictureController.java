@@ -8,8 +8,10 @@ import com.zzx.zzxpicturebackend.common.ResultUtils;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
 import com.zzx.zzxpicturebackend.model.dto.picture.PictureQueryRequest;
+import com.zzx.zzxpicturebackend.model.dto.picture.PictureReviewRequest;
 import com.zzx.zzxpicturebackend.model.dto.picture.PictureUpdateRequest;
 import com.zzx.zzxpicturebackend.model.dto.picture.PictureUploadRequest;
+import com.zzx.zzxpicturebackend.model.enums.PictureReviewEnum;
 import com.zzx.zzxpicturebackend.model.enums.UserRoleEnum;
 import com.zzx.zzxpicturebackend.model.po.Picture;
 import com.zzx.zzxpicturebackend.model.po.PictureTagCategory;
@@ -81,8 +83,8 @@ public class PictureController {
      */
     @PostMapping("/update")
     @AuthCheck(value = UserRoleEnum.ADMIN)
-    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest) {
-        Boolean result = pictureService.updatePicture(pictureUpdateRequest);
+    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest, HttpServletRequest request) {
+        Boolean result = pictureService.updatePicture(pictureUpdateRequest, request);
         return ResultUtils.success(result);
     }
 
@@ -153,6 +155,8 @@ public class PictureController {
         ThrowUtils.throwIf(pictureQueryRequest == null, ErrorCode.PARAMS_ERROR);
         long current = pictureQueryRequest.getCurrent();
         long size = pictureQueryRequest.getPageSize();
+        // 普通用户只能看到审核通过的照片
+        pictureQueryRequest.setReviewStatus(PictureReviewEnum.PASS.getValue());
         Page<Picture> pictureList = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
         Page<PictureVO> pictureVOList = pictureService.getPictureVOPage(pictureList);
         return ResultUtils.success(pictureVOList);
@@ -160,7 +164,6 @@ public class PictureController {
 
     /**
      * 获取预制的标签和分类
-     *
      */
     @GetMapping("/tag_category")
     public BaseResponse<PictureTagCategory> listPictureTagCategory() {
@@ -170,6 +173,24 @@ public class PictureController {
         pictureTagCategory.setTagList(tagList);
         pictureTagCategory.setCategoryList(categoryList);
         return ResultUtils.success(pictureTagCategory);
+    }
+
+    /**
+     * 审核照片（只有管理员才能审核）
+     *
+     * @param pictureReviewRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/review")
+    @AuthCheck(value = UserRoleEnum.ADMIN)
+    public BaseResponse<Boolean> doPictureReview(@RequestBody PictureReviewRequest pictureReviewRequest, HttpServletRequest request) {
+        // 校验参数
+        ThrowUtils.throwIf(pictureReviewRequest == null, ErrorCode.PARAMS_ERROR);
+        // 审核照片
+        Boolean result = pictureService.doPictureReview(pictureReviewRequest, request);
+        // 返回
+        return ResultUtils.success(result);
     }
 
 
