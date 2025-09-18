@@ -22,6 +22,9 @@ import com.zzx.zzxpicturebackend.service.PictureService;
 import com.zzx.zzxpicturebackend.mapper.PictureMapper;
 import com.zzx.zzxpicturebackend.service.UserService;
 import com.zzx.zzxpicturebackend.utils.CosUtil;
+import com.zzx.zzxpicturebackend.utils.upload.FilePictureUpload;
+import com.zzx.zzxpicturebackend.utils.upload.PictureUploadTemplate;
+import com.zzx.zzxpicturebackend.utils.upload.UrlPictureUpload;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,8 +46,13 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         implements PictureService {
 
 
+    // @Resource
+    // private CosUtil cosUtil;
     @Resource
-    private CosUtil cosUtil;
+    private FilePictureUpload filePictureUpload;
+
+    @Resource
+    private UrlPictureUpload urlPictureUpload;
 
     @Resource
     private UserService userService;
@@ -52,13 +60,13 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     /**
      * 上传图片
      *
-     * @param file
+     * @param inputSource
      * @param pictureUploadRequest
      * @param loginUser
      * @return
      */
     @Override
-    public PictureVO uploadPicture(MultipartFile file, PictureUploadRequest pictureUploadRequest, User loginUser) {
+    public PictureVO uploadPicture(Object inputSource, PictureUploadRequest pictureUploadRequest, User loginUser) {
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
         // 用于判断是新增还是更新照片
         Long pictureId = null;
@@ -80,8 +88,14 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 上传图片，得到信息
         // 需要按照用户的id 划分目录
         String uploadPathPrefix = String.format("public/%s", loginUser.getId());
+        // 根据 inputSource 类别区分上传方式
+        PictureUploadTemplate pictureUploadTemplate = filePictureUpload;
+        if (inputSource instanceof String) {
+            pictureUploadTemplate = urlPictureUpload;
+        }
         // 上传图片
-        UploadPictureResult uploadPictureResult = cosUtil.uploadPicture(file, uploadPathPrefix);
+        // UploadPictureResult uploadPictureResult = cosUtil.uploadPicture(file, uploadPathPrefix);
+        UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
         // 存入数据库
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());

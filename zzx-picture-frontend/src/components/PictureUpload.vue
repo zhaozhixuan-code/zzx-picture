@@ -63,7 +63,7 @@ const beforeUpload = (file: UploadProps['fileList'][number]) => {
   // 校验图片大小，不能超过20MB
   const isLt2M = file.size / 1024 / 1024 < 20
   if (!isLt2M) {
-    message.error('Image must smaller than 2MB!')
+    message.error('图片不能超过20MB')
   }
   return isJpgOrPng && isLt2M
 }

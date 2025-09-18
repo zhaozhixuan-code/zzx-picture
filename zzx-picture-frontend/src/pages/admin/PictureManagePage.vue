@@ -71,7 +71,7 @@
           <div>审核信息：{{ record.reviewMessage }}</div>
           <div>审核人：{{ record.reviewerId }}</div>
           <div v-if="record.reviewTime">
-            审核时间：{{ record.reviewTime }}.format('YYYY-MM-DD HH:mm:ss') }}
+            审核时间：{{ dayjs(record.reviewTime).format('YYYY-MM-DD HH:mm:ss') }}
           </div>
         </template>
 

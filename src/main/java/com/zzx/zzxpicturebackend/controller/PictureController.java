@@ -44,7 +44,7 @@ public class PictureController {
 
 
     /**
-     * 上传照片
+     * 通过本地文件上传照片
      *
      * @param file                 上传的照片
      * @param pictureUploadRequest 上传照片是否为修改
@@ -62,6 +62,28 @@ public class PictureController {
         PictureVO pictureVO = pictureService.uploadPicture(file, pictureUploadRequest, loginUser);
         return ResultUtils.success(pictureVO);
     }
+
+    /**
+     * 通过 URL 上传照片
+     *
+     * @param pictureUploadRequest 上传照片是否为修改
+     * @param request              请求
+     * @return 上传成功后的照片信息
+     */
+    @PostMapping("/upload/url")
+    public BaseResponse<PictureVO> uploadPictureByUrl(
+            @RequestBody PictureUploadRequest pictureUploadRequest,
+            HttpServletRequest request) {
+
+        // 获取当前用户
+        User loginUser = userService.getLoginUser(request);
+        // 获取照片的 url
+        String fileUrl = pictureUploadRequest.getFileUrl();
+        // 上传照片，返回照片信息
+        PictureVO pictureVO = pictureService.uploadPicture(fileUrl, pictureUploadRequest, loginUser);
+        return ResultUtils.success(pictureVO);
+    }
+
 
     /**
      * 删除照片
