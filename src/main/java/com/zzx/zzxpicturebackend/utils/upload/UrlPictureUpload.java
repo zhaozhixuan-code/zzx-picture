@@ -11,6 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -28,45 +32,47 @@ public class UrlPictureUpload extends PictureUploadTemplate {
     @Override
     protected void check(Object inputSource) {
         String fileUrl = (String) inputSource;
-        // 验证URL是否为空
-        ThrowUtils.throwIf(StrUtil.isBlank(fileUrl), ErrorCode.PARAMS_ERROR, "图片URL不能为空");
+        ThrowUtils.throwIf(StrUtil.isBlank(fileUrl), ErrorCode.PARAMS_ERROR, "文件地址不能为空");
 
-        // 验证URL格式是否正确
-        ThrowUtils.throwIf(!ReUtil.isMatch("^https?://.*", fileUrl), ErrorCode.PARAMS_ERROR, "图片URL格式错误");
+        try {
+            // 1. 验证 URL 格式
+            new URL(fileUrl); // 验证是否是合法的 URL
+        } catch (MalformedURLException e) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件地址格式不正确");
+        }
 
+        // 2. 校验 URL 协议
+        ThrowUtils.throwIf(!(fileUrl.startsWith("http://") || fileUrl.startsWith("https://")),
+                ErrorCode.PARAMS_ERROR, "仅支持 HTTP 或 HTTPS 协议的文件地址");
 
-        // 使用HEAD请求检查文件大小
+        // 3. 发送 HEAD 请求以验证文件是否存在
         HttpResponse response = null;
         try {
-             response = HttpUtil.createRequest(Method.HEAD, fileUrl).execute();
-
-            // 检查响应状态码
-            ThrowUtils.throwIf(response.getStatus() != HttpStatus.HTTP_OK, ErrorCode.PARAMS_ERROR, "无法访问图片URL");
-
-            // 获取文件大小
-            long maxSize = 1024 * 1024 * 20; // 20MB
-            String contentLengthStr = response.header("Content-Length");
-
-            if (contentLengthStr != null && !contentLengthStr.isEmpty()) {
-                long fileSize = Long.parseLong(contentLengthStr);
-                ThrowUtils.throwIf(fileSize > maxSize, ErrorCode.PARAMS_ERROR, "图片大小不能超过20MB");
+            response = HttpUtil.createRequest(Method.HEAD, fileUrl).execute();
+            // 未正常返回，无需执行其他判断
+            if (response.getStatus() != HttpStatus.HTTP_OK) {
+                return;
             }
-            // 检查Content-Type
+            // 4. 校验文件类型
             String contentType = response.header("Content-Type");
-            if (contentType != null && !contentType.isEmpty()) {
-                boolean isValidImageType = contentType.startsWith("image/jpeg") ||
-                        contentType.startsWith("image/png") ||
-                        contentType.startsWith("image/jpg");
-                ThrowUtils.throwIf(!isValidImageType, ErrorCode.PARAMS_ERROR, "URL不是有效的图片资源");
+            if (StrUtil.isNotBlank(contentType)) {
+                // 允许的图片类型
+                final List<String> ALLOW_CONTENT_TYPES = Arrays.asList("image/jpeg", "image/jpg", "image/png", "image/webp");
+                ThrowUtils.throwIf(!ALLOW_CONTENT_TYPES.contains(contentType.toLowerCase()),
+                        ErrorCode.PARAMS_ERROR, "文件类型错误");
             }
-        } catch (NumberFormatException e) {
-            log.error("解析文件大小失败", e);
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "无法获取图片大小信息");
-        } catch (Exception e) {
-            log.error("HEAD请求检查文件失败", e);
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "无法验证图片URL");
+            // 5. 校验文件大小
+            String contentLengthStr = response.header("Content-Length");
+            if (StrUtil.isNotBlank(contentLengthStr)) {
+                try {
+                    long contentLength = Long.parseLong(contentLengthStr);
+                    final long TWO_MB = 2 * 1024 * 1024L; // 限制文件大小为 2MB
+                    ThrowUtils.throwIf(contentLength > TWO_MB, ErrorCode.PARAMS_ERROR, "文件大小不能超过 2M");
+                } catch (NumberFormatException e) {
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小格式错误");
+                }
+            }
         } finally {
-            // 释放HttpResponse资源
             if (response != null) {
                 response.close();
             }
