@@ -7,10 +7,7 @@ import com.zzx.zzxpicturebackend.common.BaseResponse;
 import com.zzx.zzxpicturebackend.common.ResultUtils;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
-import com.zzx.zzxpicturebackend.model.dto.picture.PictureQueryRequest;
-import com.zzx.zzxpicturebackend.model.dto.picture.PictureReviewRequest;
-import com.zzx.zzxpicturebackend.model.dto.picture.PictureUpdateRequest;
-import com.zzx.zzxpicturebackend.model.dto.picture.PictureUploadRequest;
+import com.zzx.zzxpicturebackend.model.dto.picture.*;
 import com.zzx.zzxpicturebackend.model.enums.PictureReviewEnum;
 import com.zzx.zzxpicturebackend.model.enums.UserRoleEnum;
 import com.zzx.zzxpicturebackend.model.po.Picture;
@@ -213,6 +210,23 @@ public class PictureController {
         Boolean result = pictureService.doPictureReview(pictureReviewRequest, request);
         // 返回
         return ResultUtils.success(result);
+    }
+
+    /**
+     * @param pictureUploadByBatchRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/upload/batch")
+    @AuthCheck(value = UserRoleEnum.ADMIN)
+    public BaseResponse<Integer> uploadPictureByBatch(@RequestBody PictureUploadByBatchRequest pictureUploadByBatchRequest, HttpServletRequest request) {
+        // 校验参数
+        ThrowUtils.throwIf(pictureUploadByBatchRequest == null, ErrorCode.PARAMS_ERROR);
+        // 审核照片
+        User loginUser = userService.getLoginUser(request);
+        Integer count = pictureService.uploadPictureByBatch(pictureUploadByBatchRequest, loginUser);
+        // 返回
+        return ResultUtils.success(count);
     }
 
 

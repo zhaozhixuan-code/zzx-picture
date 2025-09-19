@@ -131,6 +131,7 @@ import {
   PIC_REVIEW_STATUS_MAP,
   PIC_REVIEW_STATUS_OPTIONS,
 } from '../../constants/picture.ts'
+import router from '@/router'
 
 // 表格列定义
 const columns = [
@@ -238,11 +239,11 @@ const doTableChange = (pagination) => {
 }
 
 // 删除处理
-const doDelete = async (id: string) => {
+const doDelete = async (id) => {
   if (!id) {
     return
   }
-  const res = await deletePictureUsingPost({ id })
+  const res = await deletePictureUsingPost( id )
   if (res.data.code === 0) {
     message.success('删除成功')
     // 重新获取数据

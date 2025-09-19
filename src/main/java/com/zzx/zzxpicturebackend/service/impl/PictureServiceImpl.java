@@ -21,15 +21,19 @@ import com.zzx.zzxpicturebackend.model.vo.PictureVO;
 import com.zzx.zzxpicturebackend.service.PictureService;
 import com.zzx.zzxpicturebackend.mapper.PictureMapper;
 import com.zzx.zzxpicturebackend.service.UserService;
-import com.zzx.zzxpicturebackend.utils.CosUtil;
 import com.zzx.zzxpicturebackend.utils.upload.FilePictureUpload;
 import com.zzx.zzxpicturebackend.utils.upload.PictureUploadTemplate;
 import com.zzx.zzxpicturebackend.utils.upload.UrlPictureUpload;
+import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +46,7 @@ import java.util.stream.Collectors;
  * @createDate 2025-09-13 17:08:54
  */
 @Service
+@Slf4j
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         implements PictureService {
 
@@ -99,7 +104,11 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 存入数据库
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());
-        picture.setName(uploadPictureResult.getPicName());
+        String picName = uploadPictureResult.getPicName();
+        if(pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())){
+            picName = pictureUploadRequest.getPicName();
+        }
+        picture.setName(picName);
         picture.setPicSize(uploadPictureResult.getPicSize());
         picture.setPicWidth(uploadPictureResult.getPicWidth());
         picture.setPicHeight(uploadPictureResult.getPicHeight());
@@ -377,6 +386,64 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             picture.setReviewStatus(PictureReviewEnum.REVIEWING.getValue());
         }
 
+    }
+
+    /**
+     * 批量抓取图片
+     *
+     * @param pictureUploadByBatchRequest
+     * @param loginUser
+     * @return 成功的图片数量
+     */
+    @Override
+    public Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser) {
+        // 1、获取参数
+        String searchText = pictureUploadByBatchRequest.getSearchText(); // 搜索关键词
+        Integer maxNum = pictureUploadByBatchRequest.getCount(); // 要抓取的图片数量
+        String namePrefix = pictureUploadByBatchRequest.getNamePrefix();
+        if (StrUtil.isBlank(namePrefix)) {
+            searchText = namePrefix;
+        }
+        searchText +="4K高清";
+        // 2、抓取图片
+        // 要抓取的图片地址
+        String url = String.format("https://cn.bing.com/images/async?q=%s&mmasync=1", searchText);
+        Document document = null;
+        try {
+            document = Jsoup.connect(url).get();
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "图片抓取失败");
+        }
+        // 查找所有图片元素
+        Elements imgElements = document.select("img.mimg, img.cimg");
+        // 3、处理上传地址、图片信息
+        int result = 0;
+        for (Element img : imgElements) {
+            String pictureUrl = img.attr("src");
+            if (StrUtil.isBlank(pictureUrl)) {
+                log.info("当前链接为空,已跳过");
+                continue;
+            }
+            // 处理图片地址，防止出现转译问题
+            // System.out.println("pictureUrl = " + pictureUrl);
+            String subUrl = pictureUrl.substring(0, !pictureUrl.contains("?") ? pictureUrl.length() : pictureUrl.indexOf("?"));
+            PictureUploadRequest pictureUploadRequest = new PictureUploadRequest();
+            pictureUploadRequest.setFileUrl(subUrl);
+            pictureUploadRequest.setPicName(namePrefix + (result + 1));
+            try {
+                PictureVO pictureVO = this.uploadPicture(subUrl, pictureUploadRequest, loginUser);
+                // 图片上传成功
+                result++;
+            } catch (Exception e) {
+                log.info("图片上传失败,已跳过");
+                continue;
+            }
+            if (result >= maxNum) {
+                break;
+            }
+        }
+        // 4、上传图片
+        return result;
     }
 }
 

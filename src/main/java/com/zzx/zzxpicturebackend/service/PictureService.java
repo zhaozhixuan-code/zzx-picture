@@ -2,10 +2,7 @@ package com.zzx.zzxpicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zzx.zzxpicturebackend.model.dto.picture.PictureQueryRequest;
-import com.zzx.zzxpicturebackend.model.dto.picture.PictureReviewRequest;
-import com.zzx.zzxpicturebackend.model.dto.picture.PictureUpdateRequest;
-import com.zzx.zzxpicturebackend.model.dto.picture.PictureUploadRequest;
+import com.zzx.zzxpicturebackend.model.dto.picture.*;
 import com.zzx.zzxpicturebackend.model.po.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zzx.zzxpicturebackend.model.po.User;
@@ -102,4 +99,13 @@ public interface PictureService extends IService<Picture> {
      * @param loginUser
      */
     void fileReviewParams(Picture picture, User loginUser);
+
+    /**
+     * 批量抓取图片
+     *
+     * @param pictureUploadByBatchRequest
+     * @param loginUser
+     * @return 成功的图片数量
+     */
+    Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser);
 }
