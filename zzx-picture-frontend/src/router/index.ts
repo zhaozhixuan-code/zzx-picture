@@ -27,6 +27,10 @@ const router = createRouter({
       path: '/add_picture',
       name: '新建图片',
       component: () => import('../pages/AddPicturePage.vue'),
+    },{
+      path: '/add_picture/batch',
+      name: '批量新建图片',
+      component: () => import('../pages/AddPictureBatchPage.vue'),
     },
     {
       path: '/admin/pictureManage',

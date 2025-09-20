@@ -1,5 +1,15 @@
 <template>
   <div id="pictureManagePage">
+    <a-flex justify="space-between">
+      <h2>图片管理</h2>
+      <a-space>
+        <a-button type="primary" href="/add_picture" target="_blank">+ 添加图片</a-button>
+        <a-button type="primary" href="/add_picture/batch" target="_blank" ghost
+          >+ 批量添加图片</a-button
+        >
+      </a-space>
+    </a-flex>
+
     <!-- 搜索框 --->
     <a-form layout="inline" :model="searchParams" @finish="doSearch">
       <a-form-item label="关键词">
@@ -243,7 +253,7 @@ const doDelete = async (id) => {
   if (!id) {
     return
   }
-  const res = await deletePictureUsingPost( id )
+  const res = await deletePictureUsingPost(id)
   if (res.data.code === 0) {
     message.success('删除成功')
     // 重新获取数据
