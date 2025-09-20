@@ -34,6 +34,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +107,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());
         String picName = uploadPictureResult.getPicName();
-        if(pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())){
+        if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())) {
             picName = pictureUploadRequest.getPicName();
         }
         picture.setName(picName);
@@ -402,48 +404,64 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         Integer maxNum = pictureUploadByBatchRequest.getCount(); // 要抓取的图片数量
         String namePrefix = pictureUploadByBatchRequest.getNamePrefix();
         if (StrUtil.isBlank(namePrefix)) {
-            searchText = namePrefix;
+            namePrefix = searchText;
         }
-        searchText +="4K高清";
-        // 2、抓取图片
-        // 要抓取的图片地址
-        String url = String.format("https://cn.bing.com/images/async?q=%s&mmasync=1", searchText);
-        Document document = null;
+        searchText += "4K";
+        /* ---------- 2. 抓取列表 ---------- */
+        String listUrl = StrUtil.format("https://cn.bing.com/images/async?q={}&mmasync=1",
+                URLEncoder.encode(searchText, StandardCharsets.UTF_8));
+        Document doc;
         try {
-            document = Jsoup.connect(url).get();
+            doc = Jsoup.connect(listUrl)
+                    .userAgent("Mozilla/5.0")
+                    .timeout(10_000)
+                    .get();
         } catch (IOException e) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "图片抓取失败");
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "图片列表抓取失败");
         }
-        // 查找所有图片元素
-        Elements imgElements = document.select("img.mimg, img.cimg");
-        // 3、处理上传地址、图片信息
-        int result = 0;
-        for (Element img : imgElements) {
-            String pictureUrl = img.attr("src");
-            if (StrUtil.isBlank(pictureUrl)) {
-                log.info("当前链接为空,已跳过");
-                continue;
-            }
-            // 处理图片地址，防止出现转译问题
-            // System.out.println("pictureUrl = " + pictureUrl);
-            String subUrl = pictureUrl.substring(0, !pictureUrl.contains("?") ? pictureUrl.length() : pictureUrl.indexOf("?"));
-            PictureUploadRequest pictureUploadRequest = new PictureUploadRequest();
-            pictureUploadRequest.setFileUrl(subUrl);
-            pictureUploadRequest.setPicName(namePrefix + (result + 1));
+
+        /* ---------- 3. 提取原图 ---------- */
+        Elements links = doc.select("a.iusc");   // 每一张图的外层链接
+        int success = 0;
+        for (Element a : links) {
+            if (success >= maxNum) break;
+
+            String originalUrl = parseOriginalUrl(a.attr("m")); // 核心：拿原图
+            if (StrUtil.isBlank(originalUrl)) continue;
+
+            /* ---------- 4. 上传 ---------- */
+            PictureUploadRequest req = new PictureUploadRequest();
+            req.setFileUrl(originalUrl);
+            req.setPicName(StrUtil.isNotBlank(namePrefix)
+                    ? namePrefix + (success + 1)
+                    : "pic" + (success + 1));
             try {
-                PictureVO pictureVO = this.uploadPicture(subUrl, pictureUploadRequest, loginUser);
-                // 图片上传成功
-                result++;
+                this.uploadPicture(originalUrl, req, loginUser);
+                success++;
             } catch (Exception e) {
-                log.info("图片上传失败,已跳过");
-                continue;
-            }
-            if (result >= maxNum) {
-                break;
+                log.warn("单张上传失败，已跳过：{}", originalUrl);
             }
         }
-        // 4、上传图片
-        return result;
+        return success;
+    }
+
+    /**
+     * 从 m 属性里抽 murl
+     *
+     * @param mJson
+     * @return
+     */
+    private String parseOriginalUrl(String mJson) {
+        if (StrUtil.isBlank(mJson)) return null;
+        // 最简单可靠：字符串截取，避免引入 JSON 库
+        String key = "\"murl\":\"";
+        int start = mJson.indexOf(key);
+        if (start == -1) return null;
+        start += key.length();
+        int end = mJson.indexOf('"', start);
+        if (end == -1) return null;
+        return mJson.substring(start, end)
+                .replace("\\/", "/");
     }
 }
 

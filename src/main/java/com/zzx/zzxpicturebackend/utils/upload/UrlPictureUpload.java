@@ -1,7 +1,6 @@
 package com.zzx.zzxpicturebackend.utils.upload;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.*;
 import com.zzx.zzxpicturebackend.exception.BusinessException;
@@ -23,6 +22,9 @@ import java.util.List;
 @Service
 @Slf4j
 public class UrlPictureUpload extends PictureUploadTemplate {
+
+
+    final List<String> MUST_SUFFIX = Arrays.asList("jpg", "jpeg", "png", "bmp", "webp", "raw");
 
     /**
      * 检查源文件地址
@@ -66,8 +68,8 @@ public class UrlPictureUpload extends PictureUploadTemplate {
             if (StrUtil.isNotBlank(contentLengthStr)) {
                 try {
                     long contentLength = Long.parseLong(contentLengthStr);
-                    final long TWO_MB = 2 * 1024 * 1024L; // 限制文件大小为 2MB
-                    ThrowUtils.throwIf(contentLength > TWO_MB, ErrorCode.PARAMS_ERROR, "文件大小不能超过 2M");
+                    final long TWO_MB = 20 * 1024 * 1024L; // 限制文件大小为 20 MB
+                    ThrowUtils.throwIf(contentLength > TWO_MB, ErrorCode.PARAMS_ERROR, "文件大小不能超过 20 M");
                 } catch (NumberFormatException e) {
                     throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小格式错误");
                 }
@@ -88,7 +90,8 @@ public class UrlPictureUpload extends PictureUploadTemplate {
     @Override
     protected String getOriginalFilename(Object inputSource) {
         String fileUrl = (String) inputSource;
-        return FileUtil.mainName(fileUrl);// 这个方法是从 url 中返回文件名
+        String fileName = processUploadPath(fileUrl);
+        return fileName;
     }
 
     /**
@@ -101,5 +104,20 @@ public class UrlPictureUpload extends PictureUploadTemplate {
     protected void processFile(Object inputSource, File file) {
         String fileUrl = (String) inputSource;
         HttpUtil.downloadFile(fileUrl, file);
+    }
+
+    /**
+     * 处理上传路径
+     *
+     * @param uploadPath
+     * @return
+     */
+    private String processUploadPath(String uploadPath) {
+        // 从 url 中返回文件名
+        String mainName = FileUtil.mainName(uploadPath);
+        // 获取文件后缀
+        String extension = uploadPath.substring(uploadPath.lastIndexOf(".") + 1).toLowerCase();
+        // 如果文件url中没有后缀，则默认为 png
+        return MUST_SUFFIX.contains(extension) ? mainName + "." + extension : mainName + ".png";
     }
 }

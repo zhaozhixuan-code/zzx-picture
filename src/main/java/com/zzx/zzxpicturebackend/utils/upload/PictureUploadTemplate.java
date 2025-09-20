@@ -44,10 +44,8 @@ public abstract class PictureUploadTemplate {
         // 文件名：uuid.jpg
         String uuid = RandomUtil.randomString(16);
         String originalFilename = getOriginalFilename(inputSource);
-        // 获取文件后缀
-        String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
         // 获取上传地址 /public/userId/2025.9.13_uuid.jpg
-        String uploadPath = String.format("/%s/%s_%s.%s", uploadPathPrefix, DateUtil.formatDate(new Date()), uuid, extension);
+        String uploadPath = String.format("/%s/%s_%s", uploadPathPrefix, DateUtil.formatDate(new Date()), uuid + "_" + originalFilename);
         // 3. 上传照片
         File file = null;
         try {
