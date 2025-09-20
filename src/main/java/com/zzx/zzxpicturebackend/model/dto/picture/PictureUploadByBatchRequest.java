@@ -3,6 +3,7 @@ package com.zzx.zzxpicturebackend.model.dto.picture;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 批量上传图片请求
@@ -26,6 +27,16 @@ public class PictureUploadByBatchRequest implements Serializable {
      * 名称的前缀
      */
     private String namePrefix;
+
+    /**
+     * 分类
+     */
+    private String category;
+
+    /**
+     * 标签
+     */
+    private List<String> tags;
 
 
 }

@@ -187,8 +187,10 @@ public class PictureController {
     @GetMapping("/tag_category")
     public BaseResponse<PictureTagCategory> listPictureTagCategory() {
         PictureTagCategory pictureTagCategory = new PictureTagCategory();
-        List<String> tagList = Arrays.asList("热门", "搞笑", "生活", "高清", "艺术", "校园", "背景", "简历", "创意");
-        List<String> categoryList = Arrays.asList("模板", "电商", "表情包", "素材", "海报");
+        // 获取分类
+        List<String> categoryList = Arrays.asList("动漫", "风景", "动物", "人像", "海报");
+        // 获取标签
+        List<String> tagList = Arrays.asList("热门", "城市", "高清", "艺术", "校园", "星空", "女孩", "时尚");
         pictureTagCategory.setTagList(tagList);
         pictureTagCategory.setCategoryList(categoryList);
         return ResultUtils.success(pictureTagCategory);
@@ -213,6 +215,7 @@ public class PictureController {
     }
 
     /**
+     *  批量上传照片
      * @param pictureUploadByBatchRequest
      * @param request
      * @return

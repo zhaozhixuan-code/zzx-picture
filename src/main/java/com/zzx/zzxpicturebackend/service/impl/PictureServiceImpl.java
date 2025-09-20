@@ -107,8 +107,17 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());
         String picName = uploadPictureResult.getPicName();
+        // 存入照片名称
         if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())) {
             picName = pictureUploadRequest.getPicName();
+        }
+        // 存入照片分类
+        if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getCategory())) {
+            picture.setCategory(pictureUploadRequest.getCategory());
+        }
+        // 存入照片分类
+        if (pictureUploadRequest != null && CollUtil.isNotEmpty(pictureUploadRequest.getTags())) {
+            picture.setTags(JSONUtil.toJsonStr(pictureUploadRequest.getTags()));
         }
         picture.setName(picName);
         picture.setPicSize(uploadPictureResult.getPicSize());
@@ -435,6 +444,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             req.setPicName(StrUtil.isNotBlank(namePrefix)
                     ? namePrefix + (success + 1)
                     : "pic" + (success + 1));
+            req.setCategory(pictureUploadByBatchRequest.getCategory());
+            req.setTags(pictureUploadByBatchRequest.getTags());
             try {
                 this.uploadPicture(originalUrl, req, loginUser);
                 success++;

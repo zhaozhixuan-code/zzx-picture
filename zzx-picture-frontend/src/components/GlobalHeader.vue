@@ -83,11 +83,11 @@ const originItems = [
     label: '图片管理',
     title: '图片管理',
   },
-  {
-    key: 'others',
-    label: h('a', { href: 'https://www.bilibili.com', target: '_blank' }, '你B'),
-    title: '你B',
-  },
+  // {
+  //   key: 'others',
+  //   label: h('a', { href: 'https://www.bilibili.com', target: '_blank' }, '你B'),
+  //   title: '你B',
+  // },
 ]
 
 // 过滤菜单项
