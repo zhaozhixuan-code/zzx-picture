@@ -168,12 +168,12 @@ export async function uploadPictureUsingPost(
   })
 }
 
-/** uploadPictureByBatch POST /api/picture/upload/batch */
-export async function uploadPictureByBatchUsingPost(
+/** uploadPictureByBatchWithBing POST /api/picture/upload/batch/bing */
+export async function uploadPictureByBatchWithBingUsingPost(
   body: API.PictureUploadByBatchRequest,
   options?: { [key: string]: any }
 ) {
-  return request<API.BaseResponseInt_>('/api/picture/upload/batch', {
+  return request<API.BaseResponseInt_>('/api/picture/upload/batch/bing', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

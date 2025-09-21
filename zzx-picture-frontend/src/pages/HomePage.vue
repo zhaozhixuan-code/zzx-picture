@@ -37,14 +37,9 @@
       <a-spin size="large" />
     </div>
     <div v-else class="masonry">
-      <div
-        v-for="p in dataList"
-        :key="p.id"
-        class="brick"
-        @click="doClickPicture(p)"
-      >
+      <div v-for="p in dataList" :key="p.id" class="brick" @click="doClickPicture(p)">
         <div class="picture-card">
-          <img :src="p.url" :alt="p.name" />
+          <img :src="p.thumbnailUrl ?? p.url" :alt="p.name" />
           <div class="overlay">
             <h3 class="picture-title">{{ p.name }}</h3>
             <div class="picture-info">
@@ -158,13 +153,14 @@ onMounted(() => {
 <style scoped>
 /* ---------- 整体边距 ---------- */
 #homePage {
-  max-width: 1600px;        /* 不让无限宽，防止列太散 */
+  max-width: 1600px; /* 不让无限宽，防止列太散 */
   margin: 0 auto;
-  padding: 24px;            /* 电脑端只有 24px 边距 */
+  padding: 24px; /* 电脑端只有 24px 边距 */
 }
+
 @media (max-width: 768px) {
   #homePage {
-    padding: 16px;          /* 移动端再小一点 */
+    padding: 16px; /* 移动端再小一点 */
   }
 }
 
@@ -190,6 +186,7 @@ onMounted(() => {
   column-gap: 16px;
   column-count: 4;
 }
+
 .brick {
   break-inside: avoid;
   margin-bottom: 16px;
@@ -204,15 +201,18 @@ onMounted(() => {
   cursor: pointer;
   transition: box-shadow 0.3s;
 }
+
 .picture-card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
+
 .picture-card img {
   width: 100%;
   height: auto;
   display: block;
   transition: transform 0.4s;
 }
+
 .picture-card:hover img {
   transform: scale(1.05);
 }
@@ -230,9 +230,11 @@ onMounted(() => {
   justify-content: flex-end;
   padding: 12px;
 }
+
 .picture-card:hover .overlay {
   opacity: 1;
 }
+
 .picture-title {
   margin: 0 0 6px 0;
   font-size: 15px;
@@ -240,16 +242,19 @@ onMounted(() => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .picture-info {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
+
 .category-tag,
 .info-tag {
   font-size: 12px;
   color: #fff;
 }
+
 .category-tag {
   font-weight: bold;
 }
@@ -266,11 +271,13 @@ onMounted(() => {
     column-count: 3;
   }
 }
+
 @media (max-width: 768px) {
   .masonry {
     column-count: 2;
   }
 }
+
 @media (max-width: 480px) {
   .masonry {
     column-count: 1;

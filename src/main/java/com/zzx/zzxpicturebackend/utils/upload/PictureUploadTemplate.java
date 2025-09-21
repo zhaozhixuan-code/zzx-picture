@@ -35,85 +35,99 @@ public abstract class PictureUploadTemplate {
     private COSClient cosClient;
 
 
-   /**
- * 模板方法，定义图片上传的标准流程
- *
- * @param inputSource      文件源（可以是本地文件路径、URL或文件对象）
- * @param uploadPathPrefix 上传路径前缀，用于构建完整的上传路径
- * @return UploadPictureResult 上传结果封装对象
- */
-public final UploadPictureResult uploadPicture(Object inputSource, String uploadPathPrefix) {
-    // 1. 图片格式和大小校验
-    check(inputSource);
+    /**
+     * 模板方法，定义图片上传的标准流程
+     *
+     * @param inputSource      文件源（可以是本地文件路径、URL或文件对象）
+     * @param uploadPathPrefix 上传路径前缀，用于构建完整的上传路径
+     * @return UploadPictureResult 上传结果封装对象
+     */
+    public final UploadPictureResult uploadPicture(Object inputSource, String uploadPathPrefix) {
+        // 1. 图片格式和大小校验
+        check(inputSource);
 
-    // 2. 构建上传路径和文件名
-    // 生成16位随机字符串作为文件名的一部分，避免文件名冲突
-    String uuid = RandomUtil.randomString(16);
-    String originalFilename = getOriginalFilename(inputSource);
-    // 构建完整上传路径：/路径前缀/日期_uuid_原文件名
-    String uploadPath = String.format("/%s/%s_%s", uploadPathPrefix, DateUtil.formatDate(new Date()), uuid + "_" + originalFilename);
+        // 2. 构建上传路径和文件名
+        // 生成16位随机字符串作为文件名的一部分，避免文件名冲突
+        String uuid = RandomUtil.randomString(16);
+        String originalFilename = getOriginalFilename(inputSource);
+        // 构建完整上传路径：/路径前缀/日期_uuid_原文件名
+        String uploadPath = String.format("/%s/%s_%s", uploadPathPrefix, DateUtil.formatDate(new Date()), uuid + "_" + originalFilename);
 
-    // 3. 处理并上传图片文件
-    File file = null;
-    try {
-        // 创建临时文件用于上传操作
-        file = File.createTempFile(uploadPath, null);
-        processFile(inputSource, file);
+        // 3. 处理并上传图片文件
+        File file = null;
+        try {
+            // 创建临时文件用于上传操作
+            file = File.createTempFile(uploadPath, null);
+            processFile(inputSource, file);
 
-        // 4. 构建上传请求并设置图片处理参数
-        PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), uploadPath, file);
+            // 4. 构建上传请求并设置图片处理参数
+            PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), uploadPath, file);
 
-        // 配置图片处理操作
-        PicOperations picOperations = new PicOperations();
-        // 设置为1表示返回原图信息
-        picOperations.setIsPicInfo(1);
+            // 配置图片处理操作
+            PicOperations picOperations = new PicOperations();
+            // 设置为1表示返回原图信息
+            picOperations.setIsPicInfo(1);
 
-        // 4.1 配置WebP格式压缩规则
-        List<PicOperations.Rule> rules = new ArrayList<>();
-        // 生成WebP格式文件名
-        String webpKey = FileUtil.mainName(uploadPath) + ".webp";
-        PicOperations.Rule compressRule = new PicOperations.Rule();
-        // 设置图片处理规则：转换为WebP格式
-        compressRule.setRule("imageMogr2/format/webp");
-        // 设置目标存储桶
-        compressRule.setBucket(cosClientConfig.getBucket());
-        // 设置处理后文件的存储路径
-        compressRule.setFileId(webpKey);
-        rules.add(compressRule);
+            // 4.1 配置WebP格式压缩规则
+            List<PicOperations.Rule> rules = new ArrayList<>();
+            // 生成WebP格式文件名
+            String webpKey = FileUtil.mainName(uploadPath) + ".webp";
+            PicOperations.Rule compressRule = new PicOperations.Rule();
+            // 4.1.1 设置图片处理规则：转换为WebP格式
+            compressRule.setRule("imageMogr2/format/webp");
+            // 设置目标存储桶
+            compressRule.setBucket(cosClientConfig.getBucket());
+            // 设置处理后文件的存储路径
+            compressRule.setFileId(webpKey);
+            rules.add(compressRule);
+            // 4.1.2 添加规则缩略图处理 ,仅对大于 500 KB 的图片进行缩略图处理
+            if (file.length() > 50 * 1024) {
+                PicOperations.Rule thumbnailRule = new PicOperations.Rule();
+                thumbnailRule.setBucket(cosClientConfig.getBucket());
+                String thumbnailKey = FileUtil.mainName(uploadPath) + "_thumbnail." + FileUtil.getSuffix(uploadPath);
+                thumbnailRule.setFileId(thumbnailKey);
+                // 缩放规则 /thumbnail/<Width>x<Height>>（如果大于原图宽高，则不处理）
+                thumbnailRule.setRule(String.format("imageMogr2/thumbnail/%sx%s>", 256, 256));
+                rules.add(thumbnailRule);
+            }
 
-        // 应用图片处理规则
-        picOperations.setRules(rules);
-        putObjectRequest.setPicOperations(picOperations);
+            // 应用图片处理规则
+            picOperations.setRules(rules);
+            putObjectRequest.setPicOperations(picOperations);
 
-        // 5. 执行上传操作
-        PutObjectResult putObjectResult = cosClient.putObject(putObjectRequest);
+            // 5. 执行上传操作
+            PutObjectResult putObjectResult = cosClient.putObject(putObjectRequest);
 
-        // 6. 解析上传结果和处理结果
-        // 获取原图信息
-        ImageInfo imageInfo = putObjectResult.getCiUploadResult().getOriginalInfo().getImageInfo();
-        // 获取图片处理结果
-        ProcessResults processResults = putObjectResult.getCiUploadResult().getProcessResults();
-        List<CIObject> objectList = processResults.getObjectList();
+            // 6. 解析上传结果和处理结果
+            // 获取原图信息
+            ImageInfo imageInfo = putObjectResult.getCiUploadResult().getOriginalInfo().getImageInfo();
+            // 获取图片处理结果
+            ProcessResults processResults = putObjectResult.getCiUploadResult().getProcessResults();
+            List<CIObject> objectList = processResults.getObjectList();
 
-        // 如果存在处理后的图片（如压缩后的WebP），优先返回处理后的结果
-        if (CollUtil.isNotEmpty(objectList)) {
-            CIObject compressedCiObject = objectList.get(0);
-            // 封装压缩图返回结果
-            return getUploadPictureResult(originalFilename, compressedCiObject);
+            // 如果存在处理后的图片（如压缩后的WebP），优先返回处理后的结果
+            if (CollUtil.isNotEmpty(objectList)) {
+                CIObject compressedCiObject = objectList.get(0);
+                // 有缩略图才得到缩略图
+                CIObject thumbnailCiObject = compressedCiObject;
+                if (objectList.size() > 1) {
+                    thumbnailCiObject = objectList.get(1);
+                }
+                // 封装压缩图返回结果
+                return getUploadPictureResult(originalFilename, compressedCiObject, thumbnailCiObject);
+            }
+
+            // 7. 如果没有处理结果，则返回原图信息
+            return getUploadPictureResult(imageInfo, originalFilename, file, uploadPath);
+
+        } catch (Exception e) {
+            log.error("上传图片失败，文件源：{}，上传路径：{}", inputSource, uploadPath, e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传图片失败");
+        } finally {
+            // 8. 清理临时文件资源
+            deleteTempFile(file);
         }
-
-        // 7. 如果没有处理结果，则返回原图信息
-        return getUploadPictureResult(imageInfo, originalFilename, file, uploadPath);
-
-    } catch (Exception e) {
-        log.error("上传图片失败，文件源：{}，上传路径：{}", inputSource, uploadPath, e);
-        throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传图片失败");
-    } finally {
-        // 8. 清理临时文件资源
-        deleteTempFile(file);
     }
-}
-
 
 
     /**
@@ -170,7 +184,7 @@ public final UploadPictureResult uploadPicture(Object inputSource, String upload
      * @param compressedCiObject 压缩后的对象
      * @return
      */
-    private UploadPictureResult getUploadPictureResult(String originalFilename, CIObject compressedCiObject) {
+    private UploadPictureResult getUploadPictureResult(String originalFilename, CIObject compressedCiObject, CIObject thumbnailCiObject) {
         UploadPictureResult uploadPictureResult = new UploadPictureResult();
         int picWidth = compressedCiObject.getWidth();
         int picHeight = compressedCiObject.getHeight();
@@ -182,6 +196,8 @@ public final UploadPictureResult uploadPicture(Object inputSource, String upload
         uploadPictureResult.setPicFormat(compressedCiObject.getFormat());
         uploadPictureResult.setPicSize(compressedCiObject.getSize().longValue());
         uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + compressedCiObject.getKey());
+        // 设置缩略图
+        uploadPictureResult.setThumbnailUrl(cosClientConfig.getHost() + "/" + thumbnailCiObject.getKey());
         return uploadPictureResult;
     }
 

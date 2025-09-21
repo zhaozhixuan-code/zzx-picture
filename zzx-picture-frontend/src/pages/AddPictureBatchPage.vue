@@ -56,7 +56,7 @@ import {
   editPictureUsingPost,
   getPictureVoByIdUsingGet,
   listPictureTagCategoryUsingGet,
-  uploadPictureByBatchUsingPost,
+  uploadPictureByBatchWithBingUsingPost,
 } from '@/api/pictureController.ts'
 import { message } from 'ant-design-vue'
 import UrlPictureUpload from '@/components/UrlPictureUpload.vue'
@@ -110,7 +110,7 @@ const router = useRouter()
  */
 const handleSubmit = async (values: any) => {
   loading.value = true
-  const res = await uploadPictureByBatchUsingPost({
+  const res = await uploadPictureByBatchWithBingUsingPost({
     ...formData,
   })
   if (res.data.code === 0 && res.data.data) {
