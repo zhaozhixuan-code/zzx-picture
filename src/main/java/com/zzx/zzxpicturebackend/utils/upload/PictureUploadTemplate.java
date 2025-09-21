@@ -62,6 +62,8 @@ public abstract class PictureUploadTemplate {
             putObjectRequest.setPicOperations(picOperations);
             PutObjectResult putObjectResult = cosClient.putObject(putObjectRequest);
             ImageInfo imageInfo = putObjectResult.getCiUploadResult().getOriginalInfo().getImageInfo();
+            // todo 压缩图片为webp
+
             // 5. 封装返回结果
             return getUploadPictureResult(imageInfo, originalFilename, file, uploadPath);
         } catch (Exception e) {

@@ -31,7 +31,7 @@ public class FilePictureUpload extends PictureUploadTemplate {
         long MaxSize = 1024 * 1024 * 20;
         ThrowUtils.throwIf(file.getSize() > MaxSize, ErrorCode.PARAMS_ERROR, "图片大小不能超过20MB");
         // 校验图片格式，只允许jpg、png、jpeg、raw格式
-        String[] allowedExtensions = {"jpg", "png", "jpeg", "raw"};
+        String[] allowedExtensions = {"jpg", "jpeg", "png", "bmp", "webp", "raw"};
         String fileName = file.getOriginalFilename();
         // 获取文件后缀
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();

@@ -7,11 +7,19 @@ spring:
     name: zzx-picture-backend
   profiles:
     active: local
+  # MySQL配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/zzx_picture
-    username: root
-    password: 20041123zzx.
+    url: jdbc:mysql://${picture.mysql.host}:${picture.mysql.port}/${picture.mysql.database}
+    username: ${picture.mysql.username}
+    password: ${picture.mysql.password}
+  # Redis配置
+  redis:
+    host: ${picture.redis.host}
+    port: ${picture.redis.port}
+    database: ${picture.redis.database}
+    password: ${picture.redis.password}
+    timeout: 5000
   # 开放更大的文件上传体积
   servlet:
     multipart:
@@ -40,7 +48,7 @@ knife4j:
     version: 1.0
     group:
       default:
-#        group-name: default
+        #        group-name: default
         api-rule: package
         api-rule-resources:
           - com.zzx.zzxpicturebackend.controller
@@ -48,10 +56,10 @@ knife4j:
 # 腾讯云对象存储配置
 cos:
   client:
-    host: ${cos.client.host}
-    secret-id: ${cos.client.secret-id}
-    secret-key: ${cos.client.secret-key}
-    bucket: ${cos.client.bucket}
-    region: ${cos.client.region}
+    host: ${picture.cos.client.host}
+    secret-id: ${picture.cos.client.secret-id}
+    secret-key: ${picture.cos.client.secret-key}
+    bucket: ${picture.cos.client.bucket}
+    region: ${picture.cos.client.region}
 
 

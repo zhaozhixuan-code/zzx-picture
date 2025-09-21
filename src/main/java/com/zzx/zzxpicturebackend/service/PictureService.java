@@ -77,10 +77,12 @@ public interface PictureService extends IService<Picture> {
     /**
      * 分页查询VO
      *
-     * @param pictureList
+     * @param current
+     * @param size
+     * @param pictureQueryRequest
      * @return
      */
-    Page<PictureVO> getPictureVOPage(Page<Picture> pictureList);
+    Page<PictureVO> getPictureVOPage(Long current, Long size, PictureQueryRequest pictureQueryRequest);
 
 
     /**

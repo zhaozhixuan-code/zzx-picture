@@ -3,11 +3,14 @@ package com.zzx.zzxpicturebackend.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.zzx.zzxpicturebackend.constant.RedisConstant;
 import com.zzx.zzxpicturebackend.exception.BusinessException;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
@@ -29,7 +32,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -40,6 +45,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +69,14 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 
     @Resource
     private UserService userService;
+
+    // 引入 redis
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    // 本地 caffeine 缓存
+    @Resource
+    private Cache<String, String> localCache;
 
     /**
      * 上传图片
@@ -299,45 +313,87 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     }
 
 
+
     /**
-     * 获取图片VO列表
+     * 分页查询VO （用户查询）
      *
-     * @param picturePage
+     * @param current             当前页
+     * @param size                每页大小
+     * @param pictureQueryRequest 查询条件
      * @return
      */
-    @Override
-    public Page<PictureVO> getPictureVOPage(Page<Picture> picturePage) {
-        List<Picture> pictureList = picturePage.getRecords();
+    public Page<PictureVO> getPictureVOPage(Long current, Long size, PictureQueryRequest pictureQueryRequest) {
+        // 1. 先从本地 Caffeine 缓存查询
+        // 构造缓存key
+        String pictureQueryJsonStr = JSONUtil.toJsonStr(pictureQueryRequest);
+        String hashKey = DigestUtils.md5DigestAsHex(pictureQueryJsonStr.getBytes());
+        String key = RedisConstant.PICTURE_SELECT_KEY + "getPicturePage:" + hashKey;
+        // 查询缓存
+        String cachedValue = localCache.getIfPresent(key);
+        if (StrUtil.isNotBlank(cachedValue)) {
+            // 缓存命中，直接返回
+            Page<PictureVO> cachePage = JSONUtil.toBean(cachedValue, Page.class);
+            return cachePage;
+        }
+        // 2. 本地 Caffeine 缓存未命中，查询 redis 缓存
+        String pictureVOPageStr = stringRedisTemplate.opsForValue().get(key);
+        if (StrUtil.isNotBlank(pictureVOPageStr)) {
+            // 缓存命中，直接返回
+            Page<PictureVO> cachePage = JSONUtil.toBean(pictureVOPageStr, Page.class);
+            return cachePage;
+        }
+        // 3. 两级缓存都没有命中，查询数据库，获取图片列表和创建VO分页对象
+        Page<Picture> picturePage = this.page(new Page<>(current, size), this.getQueryWrapper(pictureQueryRequest));
+        List<Picture> pictureList = picturePage.getRecords(); // 图片列表
+        // 创建VO分页对象
         Page<PictureVO> pictureVOPage = new Page<>(picturePage.getCurrent(), picturePage.getSize(), picturePage.getTotal());
+
+        // 3.1 如果图片列表为空，需要缓存空对象，解决缓存穿透
         if (CollUtil.isEmpty(pictureList)) {
+            // 设置随机过期时间 3 - 5 分钟，避免缓存雪崩
+            int randomTime = 180 + RandomUtil.randomInt(120);
+            stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(pictureVOPage), randomTime, TimeUnit.SECONDS);
+            // 返回空的VO分页对象
             return pictureVOPage;
         }
-        // 封装VO列表
+        // 4. 封装VO列表：将Picture对象转换为PictureVO对象
         List<PictureVO> pictureVOList = pictureList.stream().map(picture -> {
             PictureVO pictureVO = new PictureVO();
             BeanUtil.copyProperties(picture, pictureVO);
+            // 3.1 将JSON格式的标签字符串转换为List<String>
             pictureVO.setTags(JSONUtil.toList(picture.getTags(), String.class));
-            // pictureVO.setUserVO(userService.getUserVO(userService.getById(picture.getUserId())));
             return pictureVO;
         }).collect(Collectors.toList());
 
-        // 查询关联用户信息
+        // 5. 查询关联用户信息
+        // 5.1 提取所有图片的用户ID集合
         Set<Long> userIdSet = pictureList.stream().map(Picture::getUserId).collect(Collectors.toSet());
-        // 用户id对应一个用户
+        // 5.2 根据用户ID批量查询用户信息，并按ID分组
         Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream()
                 .collect(Collectors.groupingBy(User::getId));
-
+        // 6. 为每个图片VO设置用户信息
         pictureVOList.forEach(pictureVO -> {
             Long userId = pictureVO.getUserId();
             User user = null;
+            // 6.1 根据用户ID获取对应的用户信息
             if (userIdUserListMap.containsKey(userId)) {
                 user = userIdUserListMap.get(userId).get(0);
             }
+            // 6.2 设置用户VO信息
             pictureVO.setUserVO(userService.getUserVO(user));
         });
+
+        // 7. 将转换后的VO列表设置到VO分页对象中
         pictureVOPage.setRecords(pictureVOList);
 
+        // 存入本地 Caffeine 缓存
+        localCache.put(key, JSONUtil.toJsonStr(pictureVOPage));
 
+        // 存入 redis 缓存 5 - 10 分钟
+        int randomTime = 300 + RandomUtil.randomInt(300);
+        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(pictureVOPage), randomTime, TimeUnit.SECONDS);
+
+        // 8. 返回封装好的图片VO分页数据
         return pictureVOPage;
     }
 
@@ -457,7 +513,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     }
 
     /**
-     * 从 m 属性里抽 murl
+     * 解析爬虫地址，从 m 属性里抽 murl
      *
      * @param mJson
      * @return

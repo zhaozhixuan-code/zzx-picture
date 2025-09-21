@@ -176,8 +176,8 @@ public class PictureController {
         long size = pictureQueryRequest.getPageSize();
         // 普通用户只能看到审核通过的照片
         pictureQueryRequest.setReviewStatus(PictureReviewEnum.PASS.getValue());
-        Page<Picture> pictureList = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
-        Page<PictureVO> pictureVOList = pictureService.getPictureVOPage(pictureList);
+        // 分页查询
+        Page<PictureVO> pictureVOList = pictureService.getPictureVOPage(current, size, pictureQueryRequest);
         return ResultUtils.success(pictureVOList);
     }
 
@@ -188,7 +188,7 @@ public class PictureController {
     public BaseResponse<PictureTagCategory> listPictureTagCategory() {
         PictureTagCategory pictureTagCategory = new PictureTagCategory();
         // 获取分类
-        List<String> categoryList = Arrays.asList("动漫", "风景", "动物", "人像", "海报");
+        List<String> categoryList = Arrays.asList("风景", "动漫", "动物", "人像", "海报");
         // 获取标签
         List<String> tagList = Arrays.asList("热门", "城市", "高清", "艺术", "校园", "星空", "女孩", "时尚");
         pictureTagCategory.setTagList(tagList);
@@ -215,14 +215,16 @@ public class PictureController {
     }
 
     /**
-     *  批量上传照片
+     * 批量上传照片
+     * 从 bing 获取图片
+     *
      * @param pictureUploadByBatchRequest
      * @param request
      * @return
      */
-    @PostMapping("/upload/batch")
+    @PostMapping("/upload/batch/bing")
     @AuthCheck(value = UserRoleEnum.ADMIN)
-    public BaseResponse<Integer> uploadPictureByBatch(@RequestBody PictureUploadByBatchRequest pictureUploadByBatchRequest, HttpServletRequest request) {
+    public BaseResponse<Integer> uploadPictureByBatchWithBing(@RequestBody PictureUploadByBatchRequest pictureUploadByBatchRequest, HttpServletRequest request) {
         // 校验参数
         ThrowUtils.throwIf(pictureUploadByBatchRequest == null, ErrorCode.PARAMS_ERROR);
         // 审核照片
