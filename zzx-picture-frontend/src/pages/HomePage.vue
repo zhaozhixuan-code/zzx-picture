@@ -39,7 +39,14 @@
     <div v-else class="masonry">
       <div v-for="p in dataList" :key="p.id" class="brick" @click="doClickPicture(p)">
         <div class="picture-card">
-          <img :src="p.thumbnailUrl ?? p.url" :alt="p.name" />
+          <!-- 优化：添加懒加载和加载状态 -->
+          <img
+            :src="p.thumbnailUrl ?? p.url"
+            :alt="p.name"
+            loading="lazy"
+            @load="onImageLoad"
+            @error="onImageError"
+          />
           <div class="overlay">
             <h3 class="picture-title">{{ p.name }}</h3>
             <div class="picture-info">
@@ -143,6 +150,20 @@ const doClickPicture = (p: API.PictureVO) => {
   router.push(`/picture/${p.id}`)
 }
 
+// 图片加载处理函数
+const onImageLoad = (e: Event) => {
+  // 可以在这里处理图片加载成功后的逻辑
+  const img = e.target as HTMLImageElement;
+  // 例如可以添加加载成功的类名或其他处理
+}
+
+// 图片加载错误处理函数
+const onImageError = (e: Event) => {
+  // 处理图片加载失败的情况，可以设置默认图片
+  const img = e.target as HTMLImageElement;
+  img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjMyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjMyMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjE2MCIgeT0iMTYwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNhYWQiPkltYWdlIE5vdCBGb3VuZDwvdGV4dD48L3N2Zz4=';
+}
+
 /* ================== 挂载 ================== */
 onMounted(() => {
   fetchData()
@@ -211,6 +232,8 @@ onMounted(() => {
   height: auto;
   display: block;
   transition: transform 0.4s;
+  /* 添加背景色，防止图片加载前的空白 */
+  background-color: #f5f5f5;
 }
 
 .picture-card:hover img {
