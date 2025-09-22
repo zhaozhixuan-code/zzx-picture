@@ -177,6 +177,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         ThrowUtils.throwIf(!(user.getId().equals(picture.getUserId()) || user.getUserRole().equals("admin")), ErrorCode.NO_AUTH_ERROR);
         // 删除图片
         boolean result = this.removeById(id);
+        // 移除图片存储
+        this.clearPictureFile(picture);
         return result;
     }
 
@@ -312,7 +314,6 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
         return queryWrapper;
     }
-
 
 
     /**
@@ -511,6 +512,30 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             }
         }
         return success;
+    }
+
+
+    /**
+     * 清理图片文件
+     *
+     * @param oldPicture
+     */
+    @Override
+    public void clearPictureFile(Picture oldPicture) {
+        // 判断该照片是否被多条记录使用
+        String url = oldPicture.getUrl();
+        Long count = this.lambdaQuery().eq(Picture::getUrl, url).count();
+        // 有多个文件使用了该照片的url，则不删除
+        if (count > 1) {
+            return;
+        }
+        // 删除压缩后的文件（webp）
+        // 我们的数据库存储的只有压缩后的文件，所以只能删除压缩后的图片
+        filePictureUpload.deleteObject(oldPicture.getUrl());
+        // 删除缩略图
+        if (StrUtil.isNotBlank(oldPicture.getThumbnailUrl())) {
+            filePictureUpload.deleteObject(oldPicture.getThumbnailUrl());
+        }
     }
 
     /**

@@ -215,4 +215,12 @@ public abstract class PictureUploadTemplate {
             log.error("删除临时文件失败");
         }
     }
+
+    /**
+     * 删除对象
+     * @param key
+     */
+    public void deleteObject(String key) {
+        cosClient.deleteObject(cosClientConfig.getBucket(), key);
+    }
 }
