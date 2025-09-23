@@ -2,6 +2,9 @@ package com.zzx.zzxpicturebackend.model.vo;
 
 import lombok.Data;
 
+/**
+ * 上传图片返回结果
+ */
 @Data
 public class UploadPictureResult {
 
@@ -44,5 +47,10 @@ public class UploadPictureResult {
      * 图片格式
      */
     private String picFormat;
+
+    /**
+     * 空间 id
+     */
+    private Long spaceId;
 
 }

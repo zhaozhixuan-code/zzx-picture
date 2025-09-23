@@ -76,12 +76,14 @@ public interface UserService extends IService<User> {
 
     /**
      * 添加用户
+     *
      * @param userAddRequest
      */
     Long addUser(UserAddRequest userAddRequest);
 
     /**
      * 获取查询条件包装器
+     *
      * @param userQueryRequest
      * @return
      */
@@ -90,4 +92,13 @@ public interface UserService extends IService<User> {
     UserVO getUserVO(User user);
 
     List<UserVO> getUserVOList(List<User> userList);
+
+    /**
+     * 判断用户是否为管理员
+     *
+     * @param user 用户信息
+     * @return 是否为管理员
+     */
+    boolean isAdmin(User user);
+
 }

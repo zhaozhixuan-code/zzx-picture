@@ -141,9 +141,9 @@ public class PictureController {
      * @return 照片信息
      */
     @GetMapping("/get/vo")
-    public BaseResponse<PictureVO> getPictureVOById(Long id) {
+    public BaseResponse<PictureVO> getPictureVOById(Long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id == null, ErrorCode.PARAMS_ERROR);
-        PictureVO pictureVO = pictureService.getPictureVOById(id);
+        PictureVO pictureVO = pictureService.getPictureVOById(id, request);
         return ResultUtils.success(pictureVO);
     }
 
@@ -170,14 +170,14 @@ public class PictureController {
      * @return 照片列表
      */
     @PostMapping("/list/page/vo")
-    public BaseResponse<Page<PictureVO>> listPictureVOByPage(@RequestBody PictureQueryRequest pictureQueryRequest) {
+    public BaseResponse<Page<PictureVO>> listPictureVOByPage(@RequestBody PictureQueryRequest pictureQueryRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(pictureQueryRequest == null, ErrorCode.PARAMS_ERROR);
         long current = pictureQueryRequest.getCurrent();
         long size = pictureQueryRequest.getPageSize();
-        // 普通用户只能看到审核通过的照片
-        pictureQueryRequest.setReviewStatus(PictureReviewEnum.PASS.getValue());
+        // 普通用户只能看到审核通过的照片 这里移入service中校验
+        // pictureQueryRequest.setReviewStatus(PictureReviewEnum.PASS.getValue());
         // 分页查询
-        Page<PictureVO> pictureVOList = pictureService.getPictureVOPage(current, size, pictureQueryRequest);
+        Page<PictureVO> pictureVOList = pictureService.getPictureVOPage(current, size, pictureQueryRequest, request);
         return ResultUtils.success(pictureVOList);
     }
 

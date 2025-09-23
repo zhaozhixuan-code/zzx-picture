@@ -86,6 +86,11 @@ public class Picture implements Serializable {
     private Long userId;
 
     /**
+     * 所属空间 id
+     */
+    private Long spaceId;
+
+    /**
      * 创建时间
      */
     private Date createTime;

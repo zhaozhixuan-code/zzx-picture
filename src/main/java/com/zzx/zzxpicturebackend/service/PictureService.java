@@ -7,7 +7,6 @@ import com.zzx.zzxpicturebackend.model.po.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.PictureVO;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -61,9 +60,10 @@ public interface PictureService extends IService<Picture> {
      * 根据id获取图片VO
      *
      * @param id
+     * @param request
      * @return
      */
-    PictureVO getPictureVOById(Long id);
+    PictureVO getPictureVOById(Long id, HttpServletRequest request);
 
 
     /**
@@ -82,7 +82,7 @@ public interface PictureService extends IService<Picture> {
      * @param pictureQueryRequest
      * @return
      */
-    Page<PictureVO> getPictureVOPage(Long current, Long size, PictureQueryRequest pictureQueryRequest);
+    Page<PictureVO> getPictureVOPage(Long current, Long size, PictureQueryRequest pictureQueryRequest,HttpServletRequest  request);
 
 
     /**
