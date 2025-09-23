@@ -2,6 +2,10 @@ server:
   port: 8223
   servlet:
     context-path: /api
+    # cookie 30 天过期
+    session:
+      cookie:
+        max-age: 2592000
 spring:
   application:
     name: zzx-picture-backend
@@ -20,6 +24,11 @@ spring:
     database: ${picture.redis.database}
     password: ${picture.redis.password}
     timeout: 5000
+  # session 配置
+  session:
+    store-type: redis
+    # session 30 天过期 单位为秒
+    timeout: 2592000
   # 开放更大的文件上传体积
   servlet:
     multipart:
