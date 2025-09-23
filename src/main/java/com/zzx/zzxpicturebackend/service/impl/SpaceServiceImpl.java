@@ -95,7 +95,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
                 ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "用户已创建空间");
                 // 写入数据库
                 boolean result = this.save(space);
-                ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "创建空间失败");\
+                ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "创建空间失败");
                 return space.getId();
             });
             return newSpaceId;
