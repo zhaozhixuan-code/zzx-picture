@@ -9,8 +9,10 @@ import com.zzx.zzxpicturebackend.exception.ThrowUtils;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceAddRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceQueryRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceUpdateRequest;
+import com.zzx.zzxpicturebackend.model.enums.SpaceLevelEnum;
 import com.zzx.zzxpicturebackend.model.enums.UserRoleEnum;
 import com.zzx.zzxpicturebackend.model.po.Space;
+import com.zzx.zzxpicturebackend.model.vo.SpaceLevel;
 import com.zzx.zzxpicturebackend.model.vo.SpaceVO;
 import com.zzx.zzxpicturebackend.service.SpaceService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 空间控制器
@@ -39,9 +44,9 @@ public class SpaceController {
     @PostMapping("/add")
     public BaseResponse<Long> addSpace(@RequestBody SpaceAddRequest spaceAddRequest, HttpServletRequest request) {
         // 参数校验
-       ThrowUtils.throwIf(spaceAddRequest == null, ErrorCode.PARAMS_ERROR);
-       Long spaceId = spaceService.addSpace(spaceAddRequest, request);
-       return ResultUtils.success(spaceId);
+        ThrowUtils.throwIf(spaceAddRequest == null, ErrorCode.PARAMS_ERROR);
+        Long spaceId = spaceService.addSpace(spaceAddRequest, request);
+        return ResultUtils.success(spaceId);
     }
 
 
@@ -144,5 +149,20 @@ public class SpaceController {
         return ResultUtils.success(spaceVOList);
     }
 
+
+    /**
+     * 获取空间等级列表
+     * @return
+     */
+    @GetMapping("/list/level")
+    public BaseResponse<List<SpaceLevel>> listSpaceLevel() {
+        List<SpaceLevel> levelList = Arrays.stream(SpaceLevelEnum.values()).map(spaceLevelEnum -> new SpaceLevel(
+                        spaceLevelEnum.getValue(),
+                        spaceLevelEnum.getText(),
+                        spaceLevelEnum.getMaxCount(),
+                        spaceLevelEnum.getMaxSize()))
+                .collect(Collectors.toList());
+        return ResultUtils.success(levelList);
+    }
 
 }
