@@ -27,7 +27,18 @@ const router = createRouter({
       path: '/add_picture',
       name: '新建图片',
       component: () => import('../pages/AddPicturePage.vue'),
-    },{
+    },
+    {
+      path: '/add_space',
+      name: '创建空间',
+      component: () => import('../pages/AddSpacePage.vue'),
+    },
+    {
+      path: '/my_space',
+      name: '我的空间',
+      component: () => import('../pages/MySpacePage.vue'),
+    },
+    {
       path: '/add_picture/batch',
       name: '批量新建图片',
       component: () => import('../pages/AddPictureBatchPage.vue'),
@@ -41,6 +52,17 @@ const router = createRouter({
       path: '/picture/:id',
       name: '图片详情',
       component: () => import('../pages/PictureDetailPage.vue'),
+      props: true,
+    },
+    {
+      path: '/admin/spaceManage',
+      name: '空间管理',
+      component: () => import('../pages/admin/SpaceManagePage.vue'),
+    },
+    {
+      path: '/space/:id',
+      name: '空间详情',
+      component: () => import('../pages/SpaceDetailPage.vue'),
       props: true,
     },
   ],

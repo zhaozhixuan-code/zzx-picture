@@ -31,6 +31,10 @@
                 </ASpace>
                 <template #overlay>
                   <a-menu>
+                    <a-menu-item>
+                      <UserOutlined />
+                      <router-link to="/my_space"> 我的空间</router-link>
+                    </a-menu-item>
                     <a-menu-item @click="doLogout">
                       <LogoutOutlined />
                       退出登录
@@ -50,13 +54,12 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { HomeOutlined, LogoutOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons-vue'
 import { type MenuProps, message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import { userLogoutUsingPost } from '@/api/userController.ts'
 import { h, ref, computed } from 'vue'
-
 
 const loginUserStore = useLoginUserStore()
 
@@ -83,11 +86,11 @@ const originItems = [
     label: '图片管理',
     title: '图片管理',
   },
-  // {
-  //   key: 'others',
-  //   label: h('a', { href: 'https://www.bilibili.com', target: '_blank' }, '你B'),
-  //   title: '你B',
-  // },
+  {
+    key: '/admin/spaceManage',
+    label: '空间管理',
+    title: '空间管理',
+  },
 ]
 
 // 过滤菜单项
@@ -95,7 +98,7 @@ const filterMenus = (menus = [] as MenuProps['items']) => {
   return menus?.filter((menu) => {
     if (menu.key.startsWith('/admin')) {
       const loginUser = loginUserStore.loginUser
-      if (!loginUser || loginUser.userRole !== "admin") {
+      if (!loginUser || loginUser.userRole !== 'admin') {
         return false
       }
     }
