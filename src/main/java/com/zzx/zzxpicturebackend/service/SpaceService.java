@@ -3,6 +3,7 @@ package com.zzx.zzxpicturebackend.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceAddRequest;
+import com.zzx.zzxpicturebackend.model.dto.space.SpaceEditRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceQueryRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceUpdateRequest;
 import com.zzx.zzxpicturebackend.model.po.Space;
@@ -91,11 +92,11 @@ public interface SpaceService extends IService<Space> {
 
     /**
      * 编辑空间（用户）
-     * @param spaceUpdateRequest
+     * @param spaceEditRequest
      * @param request
      * @return
      */
-    Boolean editSpace(SpaceUpdateRequest spaceUpdateRequest, HttpServletRequest request);
+    Boolean editSpace(SpaceEditRequest spaceEditRequest, HttpServletRequest request);
 
 
 }

@@ -7,6 +7,7 @@ import com.zzx.zzxpicturebackend.common.ResultUtils;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceAddRequest;
+import com.zzx.zzxpicturebackend.model.dto.space.SpaceEditRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceQueryRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceUpdateRequest;
 import com.zzx.zzxpicturebackend.model.enums.SpaceLevelEnum;
@@ -78,12 +79,12 @@ public class SpaceController {
     /**
      * 修改空间（用户）
      *
-     * @param spaceUpdateRequest
+     * @param spaceEditRequest
      * @return
      */
     @PostMapping("/edit")
-    public BaseResponse<Boolean> editSpace(@RequestBody SpaceUpdateRequest spaceUpdateRequest, HttpServletRequest request) {
-        Boolean result = spaceService.editSpace(spaceUpdateRequest, request);
+    public BaseResponse<Boolean> editSpace(@RequestBody SpaceEditRequest spaceEditRequest, HttpServletRequest request) {
+        Boolean result = spaceService.editSpace(spaceEditRequest, request);
         return ResultUtils.success(result);
     }
 
@@ -144,7 +145,7 @@ public class SpaceController {
         long current = spaceQueryRequest.getCurrent();
         long size = spaceQueryRequest.getPageSize();
         // 分页查询
-        Page<Space> page = spaceService.page(new Page<>(current, size));
+        Page<Space> page = spaceService.page(new Page<>(current, size), spaceService.getQueryWrapper(spaceQueryRequest));
         Page<SpaceVO> spaceVOList = spaceService.getSpaceVOPage(page, request);
         return ResultUtils.success(spaceVOList);
     }

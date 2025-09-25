@@ -12,6 +12,7 @@ import com.zzx.zzxpicturebackend.exception.BusinessException;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceAddRequest;
+import com.zzx.zzxpicturebackend.model.dto.space.SpaceEditRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceQueryRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceUpdateRequest;
 import com.zzx.zzxpicturebackend.model.enums.SpaceLevelEnum;
@@ -83,7 +84,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         // 校验参数
         this.validSpace(space, true);
         // 校验权限，非管理员只能创建普通级别的空间
-        if (SpaceLevelEnum.COMMON.getValue() != spaceAddRequest.getSpaceLevel()) {
+        if (!userService.isAdmin(loginUser) && spaceAddRequest.getSpaceLevel() != SpaceLevelEnum.COMMON.getValue()) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "非管理员不能创建高级空间");
         }
         // 控制同一个用户只能创建一个空间 加锁
@@ -301,23 +302,23 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
     /**
      * 修改空间（用户）
      *
-     * @param spaceUpdateRequest
+     * @param spaceEditRequest
      * @param request
      * @return
      */
     @Override
-    public Boolean editSpace(SpaceUpdateRequest spaceUpdateRequest, HttpServletRequest request) {
+    public Boolean editSpace(SpaceEditRequest spaceEditRequest, HttpServletRequest request) {
         // 校验参数
-        ThrowUtils.throwIf(spaceUpdateRequest == null, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(spaceEditRequest == null, ErrorCode.PARAMS_ERROR);
         // 判断空间是否存在
-        Space oldSpace = this.getById(spaceUpdateRequest.getId());
+        Space oldSpace = this.getById(spaceEditRequest.getId());
         ThrowUtils.throwIf(oldSpace == null, ErrorCode.NOT_FOUND_ERROR);
         // 校验身份，只有用户本人或者管理员才能编辑
         User user = userService.getLoginUser(request);
         ThrowUtils.throwIf(!(user.getId().equals(oldSpace.getUserId()) || "admin".equals(user.getUserRole())), ErrorCode.NO_AUTH_ERROR);
         // 把dto转换成po
         Space space = new Space();
-        BeanUtils.copyProperties(spaceUpdateRequest, space);
+        BeanUtils.copyProperties(spaceEditRequest, space);
         // 自动填充数据
         this.fillSpaceBySpaceLevel(space);
         space.setEditTime(new Date());
