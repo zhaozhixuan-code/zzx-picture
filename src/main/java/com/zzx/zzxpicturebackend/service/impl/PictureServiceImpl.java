@@ -48,6 +48,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -86,6 +88,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     // 本地 caffeine 缓存
     @Resource
     private Cache<String, String> localCache;
+
+    @Resource
+    private ThreadPoolExecutor customExecutor;
 
     /**
      * 上传图片
@@ -741,6 +746,93 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
                 .map(PictureVO::poToVo)
                 .collect(Collectors.toList());
         return pictureVOList;
+    }
+
+    /**
+     * 批量修改图片信息
+     *
+     * @param pictureEditByBatchRequest
+     * @param loginUser
+     */
+    @Override
+    public void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser) {
+        List<Long> pictureIdList = pictureEditByBatchRequest.getPictureIdList();
+        Long spaceId = pictureEditByBatchRequest.getSpaceId();
+        String category = pictureEditByBatchRequest.getCategory();
+        List<String> tags = pictureEditByBatchRequest.getTags();
+        String nameRule = pictureEditByBatchRequest.getNameRule();
+        // 参数校验
+        ThrowUtils.throwIf(CollUtil.isEmpty(pictureIdList) || spaceId == null, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        // 校验空间权限
+        Space space = spaceService.getById(spaceId);
+        ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+        ThrowUtils.throwIf(!loginUser.getId().equals(space.getUserId()), ErrorCode.NO_AUTH_ERROR, "没有空间访问权限");
+        // 查询图片是否存在
+        List<Picture> pictureList = this.lambdaQuery()
+                .select(Picture::getId, Picture::getSpaceId)
+                .eq(Picture::getSpaceId, spaceId)
+                .in(Picture::getId, pictureIdList)
+                .list();
+        if (pictureList.size() != pictureIdList.size()) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "部分图片不存在");
+        }
+        if (pictureList.isEmpty()) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "图片不存在");
+        }
+
+        // 分批处理避免长事务
+        int batchSize = 100;
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (int i = 0; i < pictureList.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, pictureList.size());
+            List<Picture> batchPictures = pictureList.subList(i, end);
+
+            int startIndex = i;
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                batchPictures.forEach(picture -> {
+                    if (StrUtil.isNotEmpty(category)) {
+                        picture.setCategory(category);
+                    }
+                    if (CollUtil.isNotEmpty(tags)) {
+                        picture.setTags(JSONUtil.toJsonStr(tags));
+                    }
+                });
+                fillPictureWithNameRule(batchPictures, nameRule, startIndex);
+                // 批量更新
+                boolean update = this.updateBatchById(batchPictures);
+                ThrowUtils.throwIf(!update, ErrorCode.SYSTEM_ERROR, "批量修改图片信息失败");
+            }, customExecutor);
+            futures.add(future);
+        }
+        // 等待所有任务完成
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+    }
+
+    /**
+     * 批量填充图片名称
+     *
+     * @param batchPictures
+     * @param nameRule
+     * @param startIndex
+     */
+    private void fillPictureWithNameRule(List<Picture> batchPictures, String nameRule, int startIndex) {
+        // 校验参数
+        if (CollUtil.isEmpty(batchPictures)) {
+            return;
+        }
+        if (StrUtil.isBlank(nameRule)) {
+            return;
+        }
+        int index = startIndex + 1;
+        try {
+            for (Picture picture : batchPictures) {
+                String pictureName = nameRule.replaceAll("\\{index}", String.valueOf(index++));
+                picture.setName(pictureName);
+            }
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "批量填充图片名称失败");
+        }
     }
 
     /**
