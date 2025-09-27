@@ -1,9 +1,12 @@
 package com.zzx.zzxpicturebackend.model.vo;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zzx.zzxpicturebackend.model.po.Picture;
+import com.zzx.zzxpicturebackend.model.po.Space;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -81,6 +84,11 @@ public class PictureVO implements Serializable {
     private String picFormat;
 
     /**
+     * 图片主色调
+     */
+    private String picColor;
+
+    /**
      * 创建用户 id
      */
     private Long userId;
@@ -109,4 +117,35 @@ public class PictureVO implements Serializable {
      * 所属空间 id
      */
     private Long spaceId;
+
+
+    /**
+     * vo 转 po 工具类
+     *
+     * @param pictureVO
+     * @return
+     */
+    public static Picture voToPo(PictureVO pictureVO) {
+        if (pictureVO == null) {
+            return null;
+        }
+        Picture picture = new Picture();
+        BeanUtil.copyProperties(pictureVO, picture);
+        return picture;
+    }
+
+    /**
+     * po 转 vo 工具类
+     *
+     * @param picture
+     * @return
+     */
+    public static PictureVO poToVo(Picture picture) {
+        if (picture == null) {
+            return null;
+        }
+        PictureVO pictureVO = new PictureVO();
+        BeanUtil.copyProperties(picture, pictureVO);
+        return pictureVO;
+    }
 }

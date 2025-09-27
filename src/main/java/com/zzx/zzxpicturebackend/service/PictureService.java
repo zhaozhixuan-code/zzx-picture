@@ -9,6 +9,7 @@ import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.PictureVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author 28299
@@ -116,4 +117,13 @@ public interface PictureService extends IService<Picture> {
      * @param oldPicture
      */
     void clearPictureFile(Picture oldPicture);
+
+
+    /**
+     * 根据颜色搜索图片
+     * @param searchPictureByColorRequest
+     * @param loginUser
+     * @return
+     */
+    List<PictureVO> searchPictureByColor(SearchPictureByColorRequest searchPictureByColorRequest, User loginUser);
 }

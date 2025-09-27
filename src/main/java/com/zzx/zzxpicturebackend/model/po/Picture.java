@@ -61,6 +61,11 @@ public class Picture implements Serializable {
     private String tags;
 
     /**
+     * 图片主色调
+     */
+    private String picColor;
+
+    /**
      * 图片体积
      */
     private Long picSize;

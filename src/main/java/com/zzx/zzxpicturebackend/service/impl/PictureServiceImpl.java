@@ -26,6 +26,7 @@ import com.zzx.zzxpicturebackend.service.PictureService;
 import com.zzx.zzxpicturebackend.mapper.PictureMapper;
 import com.zzx.zzxpicturebackend.service.SpaceService;
 import com.zzx.zzxpicturebackend.service.UserService;
+import com.zzx.zzxpicturebackend.utils.ColorSimilarUtils;
 import com.zzx.zzxpicturebackend.utils.upload.FilePictureUpload;
 import com.zzx.zzxpicturebackend.utils.upload.PictureUploadTemplate;
 import com.zzx.zzxpicturebackend.utils.upload.UrlPictureUpload;
@@ -41,13 +42,12 @@ import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -170,6 +170,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         picture.setThumbnailUrl(uploadPictureResult.getThumbnailUrl());
         // 补充设置 originalUrl
         picture.setOriginalUrl(uploadPictureResult.getOriginalUrl());
+        picture.setPicColor(uploadPictureResult.getPicColor());
         String picName = uploadPictureResult.getPicName();
         // 存入照片名称
         if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())) {
@@ -492,7 +493,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // ThrowUtils.throwIf(CollUtil.isEmpty(pictureList), ErrorCode.NOT_FOUND_ERROR, "图片不存在");
         // 创建VO分页对象
         Page<PictureVO> pictureVOPage = new Page<>(picturePage.getCurrent(), picturePage.getSize(), picturePage.getTotal());
-        if(CollUtil.isEmpty(pictureList)){
+        if (CollUtil.isEmpty(pictureList)) {
             return pictureVOPage;
         }
         // 3.1 如果是访问公共空间，则需要缓存图片列表，解决缓存穿透
@@ -687,6 +688,54 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         if (StrUtil.isNotBlank(oldPicture.getThumbnailUrl())) {
             filePictureUpload.deleteObject(oldPicture.getThumbnailUrl());
         }
+    }
+
+    /**
+     * 搜索图片
+     *
+     * @param searchPictureByColorRequest
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public List<PictureVO> searchPictureByColor(SearchPictureByColorRequest searchPictureByColorRequest, User loginUser) {
+        // 1. 获取参数
+        String picColor = searchPictureByColorRequest.getPicColor();
+        Long spaceId = searchPictureByColorRequest.getSpaceId();
+        // 校验参数
+        ThrowUtils.throwIf(StrUtil.isBlank(picColor) || spaceId == null, ErrorCode.PARAMS_ERROR);
+        // 校验空间权限
+        Space space = spaceService.getById(spaceId);
+        if (!loginUser.getId().equals(space.getUserId())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有空间访问权限");
+        }
+        // 查询该空间下的所有照片
+        List<Picture> pictureList = this.lambdaQuery().eq(Picture::getSpaceId, spaceId)
+                .isNotNull(Picture::getPicColor)
+                .list();
+        // 如果没有图片，直接返回空列表
+        if (pictureList.isEmpty()) {
+            return Collections.emptyList();
+        }
+        // 以目标颜色为基准
+        Color targetColor = Color.decode(picColor);
+        // 计算颜色的相似度并且排序
+        List<Picture> sortedPictures = pictureList.stream().sorted(Comparator.comparingDouble(picture -> {
+                    // 提取图片主色调
+                    String hexColor = picture.getPicColor();
+                    // 没有主色调的放到最后
+                    if (StrUtil.isBlank(hexColor)) {
+                        return Double.MAX_VALUE;
+                    }
+                    Color pictureColor = Color.decode(hexColor);
+                    // 越大越相似
+                    return -ColorSimilarUtils.calculateSimilarity(targetColor, pictureColor);
+                }))
+                .collect(Collectors.toList());
+        List<PictureVO> pictureVOList = sortedPictures.stream()
+                .map(PictureVO::poToVo)
+                .collect(Collectors.toList());
+        return pictureVOList;
     }
 
     /**

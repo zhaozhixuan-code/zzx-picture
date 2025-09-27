@@ -237,6 +237,12 @@ public class PictureController {
     }
 
 
+    /**
+     * 以图搜图
+     *
+     * @param searchPictureByPictureRequest
+     * @return
+     */
     @PostMapping("/search/picture")
     public BaseResponse<List<ImageSearchResult>> searchPictureByPicture(@RequestBody SearchPictureByPictureRequest searchPictureByPictureRequest) {
         ThrowUtils.throwIf(searchPictureByPictureRequest == null, ErrorCode.PARAMS_ERROR);
@@ -245,6 +251,22 @@ public class PictureController {
         ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
         // 获取图片的原始地址（未被压缩的）
         List<ImageSearchResult> imageSearchResults = ImageSearchApiFacade.searchImage(picture.getOriginalUrl());
+        return ResultUtils.success(imageSearchResults);
+    }
+
+    /**
+     * 以颜色搜图
+     * @param searchPictureByColorRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/search/color")
+    public BaseResponse<List<PictureVO>> searchPictureByColor(@RequestBody SearchPictureByColorRequest searchPictureByColorRequest,
+                                                                      HttpServletRequest request) {
+        ThrowUtils.throwIf(searchPictureByColorRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        List<PictureVO> imageSearchResults = pictureService.searchPictureByColor(searchPictureByColorRequest, loginUser);
         return ResultUtils.success(imageSearchResults);
     }
 

@@ -70,3 +70,6 @@ ALTER TABLE picture
     -- 添加新列
     ADD COLUMN originalUrl varchar(512) NULL COMMENT '图片原图 url';
 
+-- 添加色调字段 用来颜色搜图
+ALTER TABLE picture
+    ADD COLUMN picColor varchar(16) null comment '图片主色调';
