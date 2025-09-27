@@ -709,7 +709,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         if (!loginUser.getId().equals(space.getUserId())) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有空间访问权限");
         }
-        // 查询该空间下的所有照片
+        // 查询该空间下的所有照片（必须包含颜色字段的）
         List<Picture> pictureList = this.lambdaQuery().eq(Picture::getSpaceId, spaceId)
                 .isNotNull(Picture::getPicColor)
                 .list();
@@ -720,15 +720,20 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 以目标颜色为基准
         Color targetColor = Color.decode(picColor);
         // 计算颜色的相似度并且排序
-        List<Picture> sortedPictures = pictureList.stream().sorted(Comparator.comparingDouble(picture -> {
-                    // 提取图片主色调
+        List<Picture> sortedPictures = pictureList.stream()
+                .filter(picture -> {
                     String hexColor = picture.getPicColor();
-                    // 没有主色调的放到最后
                     if (StrUtil.isBlank(hexColor)) {
-                        return Double.MAX_VALUE;
+                        return false;
                     }
                     Color pictureColor = Color.decode(hexColor);
-                    // 越大越相似
+                    double similarity = ColorSimilarUtils.calculateSimilarity(targetColor, pictureColor);
+                    return similarity > 0.6; // 只保留相似度高于60%的图片
+                })
+                .sorted(Comparator.comparingDouble(picture -> {
+                    String hexColor = picture.getPicColor();
+                    Color pictureColor = Color.decode(hexColor);
+                    // 越大越相似，使用负值实现降序排序
                     return -ColorSimilarUtils.calculateSimilarity(targetColor, pictureColor);
                 }))
                 .collect(Collectors.toList());
