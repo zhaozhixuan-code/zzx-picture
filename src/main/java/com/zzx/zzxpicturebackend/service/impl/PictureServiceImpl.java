@@ -168,6 +168,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         picture.setSpaceId(spaceId);
         picture.setUrl(uploadPictureResult.getUrl());
         picture.setThumbnailUrl(uploadPictureResult.getThumbnailUrl());
+        // 补充设置 originalUrl
+        picture.setOriginalUrl(uploadPictureResult.getOriginalUrl());
         String picName = uploadPictureResult.getPicName();
         // 存入照片名称
         if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())) {

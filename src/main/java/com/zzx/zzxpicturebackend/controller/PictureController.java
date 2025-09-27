@@ -3,6 +3,8 @@ package com.zzx.zzxpicturebackend.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzx.zzxpicturebackend.annotation.AuthCheck;
+import com.zzx.zzxpicturebackend.api.imagesearch.ImageSearchApiFacade;
+import com.zzx.zzxpicturebackend.api.imagesearch.model.ImageSearchResult;
 import com.zzx.zzxpicturebackend.common.BaseResponse;
 import com.zzx.zzxpicturebackend.common.ResultUtils;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
@@ -232,6 +234,18 @@ public class PictureController {
         Integer count = pictureService.uploadPictureByBatch(pictureUploadByBatchRequest, loginUser);
         // 返回
         return ResultUtils.success(count);
+    }
+
+
+    @PostMapping("/search/picture")
+    public BaseResponse<List<ImageSearchResult>> searchPictureByPicture(@RequestBody SearchPictureByPictureRequest searchPictureByPictureRequest) {
+        ThrowUtils.throwIf(searchPictureByPictureRequest == null, ErrorCode.PARAMS_ERROR);
+        Long pictureId = searchPictureByPictureRequest.getPictureId();
+        Picture picture = pictureService.getById(pictureId);
+        ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
+        // 获取图片的原始地址（未被压缩的）
+        List<ImageSearchResult> imageSearchResults = ImageSearchApiFacade.searchImage(picture.getOriginalUrl());
+        return ResultUtils.success(imageSearchResults);
     }
 
 

@@ -26,14 +26,19 @@ public class Picture implements Serializable {
     private Long id;
 
     /**
-     * 图片 url
+     * 图片 url （webp）
      */
     private String url;
 
     /**
-     * 压缩图片 url
+     * 缩略图片 url
      */
     private String thumbnailUrl;
+
+    /**
+     * 图片原图（用户上传的原图，没有被压缩）
+     */
+    private String originalUrl;
 
     /**
      * 图片名称

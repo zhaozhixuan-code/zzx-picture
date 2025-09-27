@@ -49,7 +49,9 @@ public abstract class PictureUploadTemplate {
         // 2. 构建上传路径和文件名
         // 生成16位随机字符串作为文件名的一部分，避免文件名冲突
         String uuid = RandomUtil.randomString(16);
-        String originalFilename = getOriginalFilename(inputSource);
+        String originalFilename = getOriginalFilename(inputSource); // file.jpg
+        // 获取原始文件的后缀，用于保存原始文件url
+        String picFormat = FileUtil.getSuffix(originalFilename);
         // 构建完整上传路径：/路径前缀/日期_uuid_原文件名
         String uploadPath = String.format("/%s/%s_%s", uploadPathPrefix, DateUtil.formatDate(new Date()), uuid + "_" + originalFilename);
 
@@ -154,7 +156,7 @@ public abstract class PictureUploadTemplate {
     protected abstract void processFile(Object inputSource, File file);
 
     /**
-     * 封装返回结果
+     * 封装返回结果 （没有被压缩的图片）
      *
      * @param imageInfo
      * @param originalFilename
@@ -174,6 +176,8 @@ public abstract class PictureUploadTemplate {
         uploadPictureResult.setPicFormat(imageInfo.getFormat());
         uploadPictureResult.setPicSize(FileUtil.size(file));
         uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + uploadPath);
+        uploadPictureResult.setOriginalUrl(cosClientConfig.getHost() + "/" + uploadPath);
+        uploadPictureResult.setThumbnailUrl(cosClientConfig.getHost() + "/" + uploadPath);
         return uploadPictureResult;
     }
 
@@ -195,7 +199,11 @@ public abstract class PictureUploadTemplate {
         uploadPictureResult.setPicScale(picScale);
         uploadPictureResult.setPicFormat(compressedCiObject.getFormat());
         uploadPictureResult.setPicSize(compressedCiObject.getSize().longValue());
+        // 设置压缩后的图片（webp)
         uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + compressedCiObject.getKey());
+        // 设置原图（用户上传的原图，没有被压缩）
+        String fileSuffix = compressedCiObject.getKey().substring(0, compressedCiObject.getKey().length() - 4) + FileUtil.getSuffix(originalFilename);
+        uploadPictureResult.setOriginalUrl(cosClientConfig.getHost() + "/" + fileSuffix);
         // 设置缩略图
         uploadPictureResult.setThumbnailUrl(cosClientConfig.getHost() + "/" + thumbnailCiObject.getKey());
         return uploadPictureResult;
@@ -218,6 +226,7 @@ public abstract class PictureUploadTemplate {
 
     /**
      * 删除对象
+     *
      * @param key
      */
     public void deleteObject(String key) {
