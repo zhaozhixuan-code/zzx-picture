@@ -65,6 +65,11 @@ const router = createRouter({
       component: () => import('../pages/SpaceDetailPage.vue'),
       props: true,
     },
+    {
+      path: '/search_picture',
+      name: '以图搜图',
+      component: () => import('../pages/SearchPicturePage.vue'),
+    },
   ],
 })
 

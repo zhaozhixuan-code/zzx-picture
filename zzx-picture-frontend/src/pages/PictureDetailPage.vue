@@ -47,6 +47,18 @@
               {{ formatSize(picture.picSize) }}
             </a-descriptions-item>
           </a-descriptions>
+          <a-space wrap>
+            <!-- 以图搜图 -->
+            <a-button
+              v-if="canEdit"
+              type="default"
+              @click="(e) => doSearch(picture, e)"
+            >
+              <search-outlined />
+              查看相似图片
+            </a-button>
+          </a-space>
+          <div style="margin-bottom: 16px" />
           <!-- 图片操作-->
           <a-space wrap>
             <!-- 下载 --->
@@ -77,9 +89,15 @@ import { deletePictureUsingPost, getPictureVoByIdUsingGet } from '@/api/pictureC
 import { onMounted, ref, h, computed } from 'vue'
 import { message } from 'ant-design-vue'
 import { downloadImage, formatSize } from '../utils'
-import { EditOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons-vue'
+import {
+  EditOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+  SearchOutlined,
+} from '@ant-design/icons-vue'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import router from '@/router'
+import SearchPicturePage from '@/pages/SearchPicturePage.vue'
 
 const props = defineProps<{
   id: string | number
@@ -88,6 +106,14 @@ const props = defineProps<{
 const picture = ref<API.PictureVO>({})
 
 const loginUserStore = useLoginUserStore()
+
+// 搜索
+// 搜索
+const doSearch = (picture, e) => {
+  e.stopPropagation()
+  router.push(`/search_picture?pictureId=${picture.id}`)
+}
+
 
 // 是否具有编辑权限
 const canEdit = computed(() => {
@@ -127,8 +153,8 @@ const doEdit = () => {
     path: '/add_picture',
     query: {
       id: picture.value.id,
-      spaceId: picture.value.spaceId
-    }
+      spaceId: picture.value.spaceId,
+    },
   })
 }
 
@@ -138,7 +164,7 @@ const doDelete = async () => {
   if (!id) {
     return
   }
-  const res = await deletePictureUsingPost( id )
+  const res = await deletePictureUsingPost(id)
   if (res.data.code === 0) {
     message.success('删除成功')
     await router.push('/')
