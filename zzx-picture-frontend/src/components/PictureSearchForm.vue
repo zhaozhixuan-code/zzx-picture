@@ -60,7 +60,6 @@
           <a-button html-type="reset" @click="doClear">重置</a-button>
         </a-space>
       </a-form-item>
-
     </a-form>
   </div>
 
@@ -74,7 +73,7 @@ import {
 } from '../constants/picture.ts'
 import dayjs from 'dayjs'
 import { message } from 'ant-design-vue'
-import { listPictureTagCategoryUsingGet } from '@/api/pictureController.ts'
+import { listPictureTagCategoryUsingGet, searchPictureByColorUsingPost } from '@/api/pictureController.ts'
 
 
 interface Props {

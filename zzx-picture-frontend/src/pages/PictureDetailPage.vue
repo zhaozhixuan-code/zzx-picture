@@ -46,14 +46,23 @@
             <a-descriptions-item label="大小">
               {{ formatSize(picture.picSize) }}
             </a-descriptions-item>
+            <a-descriptions-item label="主色调">
+              <a-space>
+                {{ picture.picColor ?? '-' }}
+                <div
+                  v-if="picture.picColor"
+                  :style="{
+                    backgroundColor: toHexColor(picture.picColor),
+                    width: '16px',
+                    height: '16px',
+                  }"
+                />
+              </a-space>
+            </a-descriptions-item>
           </a-descriptions>
           <a-space wrap>
             <!-- 以图搜图 -->
-            <a-button
-              v-if="canEdit"
-              type="default"
-              @click="(e) => doSearch(picture, e)"
-            >
+            <a-button v-if="canEdit" type="default" @click="(e) => doSearch(picture, e)">
               <search-outlined />
               查看相似图片
             </a-button>
@@ -88,7 +97,7 @@
 import { deletePictureUsingPost, getPictureVoByIdUsingGet } from '@/api/pictureController.ts'
 import { onMounted, ref, h, computed } from 'vue'
 import { message } from 'ant-design-vue'
-import { downloadImage, formatSize } from '../utils'
+import { downloadImage, formatSize, toHexColor } from '../utils'
 import {
   EditOutlined,
   DeleteOutlined,
@@ -108,12 +117,10 @@ const picture = ref<API.PictureVO>({})
 const loginUserStore = useLoginUserStore()
 
 // 搜索
-// 搜索
 const doSearch = (picture, e) => {
   e.stopPropagation()
   router.push(`/search_picture?pictureId=${picture.id}`)
 }
-
 
 // 是否具有编辑权限
 const canEdit = computed(() => {
