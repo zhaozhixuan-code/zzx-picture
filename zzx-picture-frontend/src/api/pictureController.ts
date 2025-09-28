@@ -16,7 +16,7 @@ export async function deletePictureUsingPost(body: number, options?: { [key: str
 
 /** editPicture POST /api/picture/edit */
 export async function editPictureUsingPost(
-  body: API.PictureUpdateRequest,
+  body: API.PictureEditRequest,
   options?: { [key: string]: any }
 ) {
   return request<API.BaseResponseBoolean_>('/api/picture/edit', {

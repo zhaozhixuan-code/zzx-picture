@@ -245,6 +245,14 @@ declare namespace API {
     tags?: string[]
   }
 
+  type PictureEditRequest = {
+    category?: string
+    id?: number
+    introduction?: string
+    name?: string
+    tags?: string[]
+  }
+
   type PictureQueryRequest = {
     category?: string
     current?: number
