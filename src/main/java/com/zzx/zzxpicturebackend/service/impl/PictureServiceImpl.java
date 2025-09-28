@@ -10,6 +10,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.benmanes.caffeine.cache.Cache;
+import com.zzx.zzxpicturebackend.api.aliyunai.AliyunAiApi;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
 import com.zzx.zzxpicturebackend.constant.RedisConstant;
 import com.zzx.zzxpicturebackend.exception.BusinessException;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
@@ -89,8 +93,13 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     @Resource
     private Cache<String, String> localCache;
 
+    // 引入线程池
     @Resource
     private ThreadPoolExecutor customExecutor;
+
+    // 引入阿里云
+    @Resource
+    private AliyunAiApi aliyunAiApi;
 
     /**
      * 上传图片
@@ -132,7 +141,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
             // 仅本人或者管理员可编辑
             UserRoleEnum userRoleEnum = UserRoleEnum.getEnumByValue(loginUser.getUserRole());
-            if (oldPicture.getUserId().equals(loginUser.getId()) || !UserRoleEnum.ADMIN.equals(userRoleEnum)) {
+            if (!oldPicture.getUserId().equals(loginUser.getId()) || !UserRoleEnum.ADMIN.equals(userRoleEnum)) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
             }
             // boolean exists = this.lambdaQuery().eq(Picture::getId, pictureId).exists();
@@ -281,7 +290,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     public void checkPictureAuth(User loginUser, Picture picture) {
         Long spaceId = picture.getSpaceId();
         if (spaceId == null) {
-            // 公共图库
+            // 公共图库, 只有创建人和管留言可以操作
             if (!picture.getUserId().equals(loginUser.getId()) || !userService.isAdmin(loginUser)) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
             }
@@ -324,7 +333,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
      * @return
      */
     @Override
-    public Boolean editPicture(PictureUpdateRequest pictureUpdateRequest, HttpServletRequest request) {
+    public Boolean editPicture(PictureEditRequest pictureUpdateRequest, HttpServletRequest request) {
         // 校验参数
         ThrowUtils.throwIf(pictureUpdateRequest == null, ErrorCode.PARAMS_ERROR);
         // 判断照片是否存在
@@ -807,6 +816,43 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         }
         // 等待所有任务完成
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+    }
+
+    /**
+     * 创建 AI 扩图任务
+     *
+     * @param createPictureOutPaintingTaskRequest
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser) {
+        // 获取图片信息
+        Picture picture = this.getById(createPictureOutPaintingTaskRequest.getPictureId());
+        ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
+        // 校验权限（公共图库：只有创建人和管留言可以操作，私有图库：只有创建人可以操作）
+        this.checkPictureAuth(loginUser, picture);
+        // 构造请求参数
+        CreateOutPaintingTaskRequest request = new CreateOutPaintingTaskRequest();
+        CreateOutPaintingTaskRequest.Input input = new CreateOutPaintingTaskRequest.Input();
+        input.setImageUrl(picture.getUrl());
+        BeanUtil.copyProperties(createPictureOutPaintingTaskRequest, request);
+        // 发送请求
+        CreateOutPaintingTaskResponse response = aliyunAiApi.createOutPaintingTask(request);
+        // 返回
+        return response;
+    }
+
+    /**
+     * 获取 AI 扩图任务结果
+     *
+     * @param taskId
+     * @return
+     */
+    @Override
+    public GetOutPaintingTaskResponse getPictureOutPaintingTask(String taskId) {
+        GetOutPaintingTaskResponse outPaintingTask = aliyunAiApi.getOutPaintingTask(taskId);
+        return outPaintingTask;
     }
 
     /**

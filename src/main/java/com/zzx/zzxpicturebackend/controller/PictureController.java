@@ -3,6 +3,9 @@ package com.zzx.zzxpicturebackend.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzx.zzxpicturebackend.annotation.AuthCheck;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
 import com.zzx.zzxpicturebackend.api.imagesearch.ImageSearchApiFacade;
 import com.zzx.zzxpicturebackend.api.imagesearch.model.ImageSearchResult;
 import com.zzx.zzxpicturebackend.common.BaseResponse;
@@ -112,12 +115,12 @@ public class PictureController {
     /**
      * 修改照片（用户）
      *
-     * @param pictureUpdateRequest
+     * @param pictureEditRequest
      * @return
      */
     @PostMapping("/edit")
-    public BaseResponse<Boolean> editPicture(@RequestBody PictureUpdateRequest pictureUpdateRequest, HttpServletRequest request) {
-        Boolean result = pictureService.editPicture(pictureUpdateRequest, request);
+    public BaseResponse<Boolean> editPicture(@RequestBody PictureEditRequest pictureEditRequest, HttpServletRequest request) {
+        Boolean result = pictureService.editPicture(pictureEditRequest, request);
         return ResultUtils.success(result);
     }
 
@@ -256,13 +259,14 @@ public class PictureController {
 
     /**
      * 以颜色搜图
+     *
      * @param searchPictureByColorRequest
      * @param request
      * @return
      */
     @PostMapping("/search/color")
     public BaseResponse<List<PictureVO>> searchPictureByColor(@RequestBody SearchPictureByColorRequest searchPictureByColorRequest,
-                                                                      HttpServletRequest request) {
+                                                              HttpServletRequest request) {
         ThrowUtils.throwIf(searchPictureByColorRequest == null, ErrorCode.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
@@ -270,7 +274,13 @@ public class PictureController {
         return ResultUtils.success(imageSearchResults);
     }
 
-    // 批量修改图片信息
+    /**
+     * 批量修改图片信息
+     *
+     * @param pictureEditByBatchRequest
+     * @param request
+     * @return
+     */
     @PostMapping("/edit/batch")
     public BaseResponse<Boolean> editPictureByBatch(@RequestBody PictureEditByBatchRequest pictureEditByBatchRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(pictureEditByBatchRequest == null, ErrorCode.PARAMS_ERROR);
@@ -278,5 +288,40 @@ public class PictureController {
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
         pictureService.editPictureByBatch(pictureEditByBatchRequest, loginUser);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 创建 AI 扩图任务
+     *
+     * @param createPictureOutPaintingTaskRequest
+     * @param httpServletRequest
+     * @return
+     */
+    @PostMapping("/out_patting/create_task")
+    public BaseResponse<CreateOutPaintingTaskResponse> createPictureOutPaintingTask(@RequestBody CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest,
+                                                                             HttpServletRequest httpServletRequest) {
+        // 校验参数
+        ThrowUtils.throwIf(createPictureOutPaintingTaskRequest == null ||
+                createPictureOutPaintingTaskRequest.getPictureId() == null, ErrorCode.PARAMS_ERROR);
+        // 获取登录用户
+        User loginUser = userService.getLoginUser(httpServletRequest);
+        // 创建 AI 扩图任务
+        CreateOutPaintingTaskResponse response = pictureService.createPictureOutPaintingTask(createPictureOutPaintingTaskRequest, loginUser);
+
+        return ResultUtils.success(response);
+    }
+
+    /**
+     * 获取 AI 扩图任务
+     *
+     * @param taskId 任务id
+     * @return
+     */
+    public BaseResponse<GetOutPaintingTaskResponse> getPictureOutPaintingTask(String taskId){
+        // 校验参数
+        ThrowUtils.throwIf(taskId == null, ErrorCode.PARAMS_ERROR);
+
+        GetOutPaintingTaskResponse response = pictureService.getPictureOutPaintingTask(taskId);
+        return ResultUtils.success(response);
     }
 }

@@ -71,4 +71,7 @@ cos:
     bucket: ${picture.cos.client.bucket}
     region: ${picture.cos.client.region}
 
-
+# 阿里云 AI 配置
+aliyun:
+  api-key: ${picture.aliyun.api-key}
+  image-model: ${picture.aliyun.image-model}

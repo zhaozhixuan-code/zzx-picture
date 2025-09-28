@@ -2,6 +2,8 @@ package com.zzx.zzxpicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
 import com.zzx.zzxpicturebackend.model.dto.picture.*;
 import com.zzx.zzxpicturebackend.model.po.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -55,7 +57,7 @@ public interface PictureService extends IService<Picture> {
      * @param request
      * @return
      */
-    Boolean editPicture(PictureUpdateRequest pictureUpdateRequest, HttpServletRequest request);
+    Boolean editPicture(PictureEditRequest pictureUpdateRequest, HttpServletRequest request);
 
     /**
      * 根据id获取图片VO
@@ -83,7 +85,7 @@ public interface PictureService extends IService<Picture> {
      * @param pictureQueryRequest
      * @return
      */
-    Page<PictureVO> getPictureVOPage(Long current, Long size, PictureQueryRequest pictureQueryRequest,HttpServletRequest  request);
+    Page<PictureVO> getPictureVOPage(Long current, Long size, PictureQueryRequest pictureQueryRequest, HttpServletRequest request);
 
 
     /**
@@ -114,6 +116,7 @@ public interface PictureService extends IService<Picture> {
 
     /**
      * 删除图片文件
+     *
      * @param oldPicture
      */
     void clearPictureFile(Picture oldPicture);
@@ -121,6 +124,7 @@ public interface PictureService extends IService<Picture> {
 
     /**
      * 根据颜色搜索图片
+     *
      * @param searchPictureByColorRequest
      * @param loginUser
      * @return
@@ -135,4 +139,21 @@ public interface PictureService extends IService<Picture> {
      */
     void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser);
 
+    /**
+     * 创建 AI 扩图任务
+     *
+     * @param createPictureOutPaintingTaskRequest
+     * @param loginUser
+     * @return
+     */
+    CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser);
+
+
+    /**
+     * 获取 AI 扩图任务结果
+     *
+     * @param taskId
+     * @return
+     */
+    GetOutPaintingTaskResponse getPictureOutPaintingTask(String taskId);
 }
