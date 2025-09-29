@@ -141,7 +141,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
             // 仅本人或者管理员可编辑
             UserRoleEnum userRoleEnum = UserRoleEnum.getEnumByValue(loginUser.getUserRole());
-            if (!oldPicture.getUserId().equals(loginUser.getId()) || !UserRoleEnum.ADMIN.equals(userRoleEnum)) {
+            if (!oldPicture.getUserId().equals(loginUser.getId()) && !UserRoleEnum.ADMIN.equals(userRoleEnum)) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
             }
             // boolean exists = this.lambdaQuery().eq(Picture::getId, pictureId).exists();
@@ -835,7 +835,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 构造请求参数
         CreateOutPaintingTaskRequest request = new CreateOutPaintingTaskRequest();
         CreateOutPaintingTaskRequest.Input input = new CreateOutPaintingTaskRequest.Input();
-        input.setImageUrl(picture.getUrl());
+        input.setImageUrl(picture.getOriginalUrl());
+        request.setInput(input);
         BeanUtil.copyProperties(createPictureOutPaintingTaskRequest, request);
         // 发送请求
         CreateOutPaintingTaskResponse response = aliyunAiApi.createOutPaintingTask(request);

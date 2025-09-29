@@ -87,10 +87,16 @@ public class AliyunAiApi {
         // 发送请求
         try (HttpResponse httpResponse = httpRequest.execute()) {
             if (!httpResponse.isOk()) {
-                log.error("查询任务失败:{}", httpResponse.body());
-                throw new BusinessException(ErrorCode.OPERATION_ERROR, "查询任务失败:" + httpResponse.body());
+                log.error("AI扩图失败：{}", httpResponse.body());
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "AI扩图失败：" + httpResponse.body());
             }
             GetOutPaintingTaskResponse response = JSONUtil.toBean(httpResponse.body(), GetOutPaintingTaskResponse.class);
+            String errCode = response.getOutput().getTaskId();
+            if (StrUtil.isNotBlank(errCode)) {
+                String message = response.getOutput().getMessage();
+                log.info("AI扩图失败：{}", message);
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "AI扩图失败：" + message);
+            }
             return response;
         }
     }

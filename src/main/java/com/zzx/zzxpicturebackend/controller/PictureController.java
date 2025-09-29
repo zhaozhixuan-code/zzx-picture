@@ -1,6 +1,7 @@
 package com.zzx.zzxpicturebackend.controller;
 
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzx.zzxpicturebackend.annotation.AuthCheck;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
@@ -10,6 +11,7 @@ import com.zzx.zzxpicturebackend.api.imagesearch.ImageSearchApiFacade;
 import com.zzx.zzxpicturebackend.api.imagesearch.model.ImageSearchResult;
 import com.zzx.zzxpicturebackend.common.BaseResponse;
 import com.zzx.zzxpicturebackend.common.ResultUtils;
+import com.zzx.zzxpicturebackend.exception.BusinessException;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
 import com.zzx.zzxpicturebackend.model.dto.picture.*;
@@ -317,11 +319,13 @@ public class PictureController {
      * @param taskId 任务id
      * @return
      */
+    @GetMapping("/out_painting/get_task")
     public BaseResponse<GetOutPaintingTaskResponse> getPictureOutPaintingTask(String taskId){
         // 校验参数
-        ThrowUtils.throwIf(taskId == null, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(StrUtil.isBlank(taskId), ErrorCode.PARAMS_ERROR);
 
         GetOutPaintingTaskResponse response = pictureService.getPictureOutPaintingTask(taskId);
         return ResultUtils.success(response);
     }
+
 }
