@@ -1,5 +1,6 @@
 package com.zzx.zzxpicturebackend.mapper;
 
+import com.zzx.zzxpicturebackend.model.dto.analyze.SpaceSizeAnalyzeRequest;
 import com.zzx.zzxpicturebackend.model.po.Picture;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zzx.zzxpicturebackend.model.vo.analyze.SpaceCategoryAnalyzeResponse;
@@ -19,6 +20,14 @@ public interface PictureMapper extends BaseMapper<Picture> {
 
     @Select("select category,count(id) as count,sum(picSize) as sumPicSize from picture group by category")
     List<SpaceCategoryAnalyzeResponse> selectCategoryStats();
+
+    /**
+     * 获取空间图片大小
+     *
+     * @param spaceSizeAnalyzeRequest 空间图片大小分析请求参数
+     * @return
+     */
+    List<Long> selectSpaceSizeAnalyze(SpaceSizeAnalyzeRequest spaceSizeAnalyzeRequest);
 
 }
 

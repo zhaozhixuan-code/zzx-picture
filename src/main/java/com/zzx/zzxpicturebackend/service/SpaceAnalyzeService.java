@@ -2,12 +2,10 @@ package com.zzx.zzxpicturebackend.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zzx.zzxpicturebackend.model.dto.analyze.SpaceCategoryAnalyzeRequest;
-import com.zzx.zzxpicturebackend.model.dto.analyze.SpaceUsageAnalyzeRequest;
+import com.zzx.zzxpicturebackend.model.dto.analyze.*;
 import com.zzx.zzxpicturebackend.model.po.Space;
 import com.zzx.zzxpicturebackend.model.po.User;
-import com.zzx.zzxpicturebackend.model.vo.analyze.SpaceCategoryAnalyzeResponse;
-import com.zzx.zzxpicturebackend.model.vo.analyze.SpaceUsageAnalyzeResponse;
+import com.zzx.zzxpicturebackend.model.vo.analyze.*;
 
 import java.util.List;
 
@@ -30,4 +28,40 @@ public interface SpaceAnalyzeService extends IService<Space> {
      * @return 图片分类结果
      */
     List<SpaceCategoryAnalyzeResponse> getSpaceCategoryAnalyze(SpaceCategoryAnalyzeRequest spaceCategoryAnalyzeRequest, User loginUser);
+
+    /**
+     * 获取空间标签使用
+     *
+     * @param spaceTagAnalyzeRequest
+     * @param loginUser
+     * @return
+     */
+    List<SpaceTagAnalyzeResponse> getSpaceTagAnalyze(SpaceTagAnalyzeRequest spaceTagAnalyzeRequest, User loginUser);
+
+    /**
+     * 空间图片大小分析
+     *
+     * @param spaceSizeAnalyzeRequest
+     * @param loginUser
+     * @return
+     */
+    List<SpaceSizeAnalyzeResponse> getSpaceSizeAnalyze(SpaceSizeAnalyzeRequest spaceSizeAnalyzeRequest, User loginUser);
+
+    /**
+     * 获取空间用户上传行为分析
+     *
+     * @param spaceUserAnalyzeRequest
+     * @param loginUser
+     * @return
+     */
+    List<SpaceUserAnalyzeResponse> getSpaceUserAnalyze(SpaceUserAnalyzeRequest spaceUserAnalyzeRequest, User loginUser);
+
+    /**
+     * 获取空间排名
+     *
+     * @param spaceRankAnalyzeRequest
+     * @param loginUser
+     * @return
+     */
+    List<Space> getSpaceRankAnalyze(SpaceRankAnalyzeRequest spaceRankAnalyzeRequest, User loginUser);
 }

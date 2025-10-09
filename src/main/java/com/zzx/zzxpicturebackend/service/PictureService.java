@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
+import com.zzx.zzxpicturebackend.model.dto.analyze.SpaceSizeAnalyzeRequest;
 import com.zzx.zzxpicturebackend.model.dto.picture.*;
 import com.zzx.zzxpicturebackend.model.po.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -164,5 +165,13 @@ public interface PictureService extends IService<Picture> {
      * @return
      */
     List<SpaceCategoryAnalyzeResponse> getCategoryStats();
+
+    /**
+     * 获取空间图片大小
+     *
+     * @param spaceSizeAnalyzeRequest
+     * @return
+     */
+    List<Long> getSpaceSizeAnalyze(SpaceSizeAnalyzeRequest spaceSizeAnalyzeRequest);
 
 }

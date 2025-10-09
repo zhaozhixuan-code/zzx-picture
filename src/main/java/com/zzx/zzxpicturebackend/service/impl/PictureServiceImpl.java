@@ -18,6 +18,7 @@ import com.zzx.zzxpicturebackend.constant.RedisConstant;
 import com.zzx.zzxpicturebackend.exception.BusinessException;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
+import com.zzx.zzxpicturebackend.model.dto.analyze.SpaceSizeAnalyzeRequest;
 import com.zzx.zzxpicturebackend.model.dto.picture.*;
 import com.zzx.zzxpicturebackend.model.enums.PictureReviewEnum;
 import com.zzx.zzxpicturebackend.model.enums.UserRoleEnum;
@@ -866,6 +867,18 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     public List<SpaceCategoryAnalyzeResponse> getCategoryStats() {
        return this.getBaseMapper().selectCategoryStats();
     }
+
+    /**
+     * 获取空间图片大小
+     *
+     * @param spaceSizeAnalyzeRequest 空间图片大小分析请求参数
+     * @return
+     */
+    @Override
+    public List<Long> getSpaceSizeAnalyze(SpaceSizeAnalyzeRequest spaceSizeAnalyzeRequest) {
+        return this.getBaseMapper().selectSpaceSizeAnalyze(spaceSizeAnalyzeRequest);
+    }
+
 
     /**
      * 批量填充图片名称

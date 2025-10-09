@@ -37,4 +37,21 @@
         userId,spaceId,createTime,editTime,updateTime,isDelete,
         reviewStatus,reviewMessage,reviewerId,reviewTime,originalUrl,picColor
     </sql>
+
+    <!-- 空间图片大小分析 -->
+    <select id="selectSpaceSizeAnalyze" resultType="java.lang.Long">
+        SELECT picSize FROM picture
+        <where>
+            <!-- 分析公共空间 -->
+            <if test="queryPublic != null and queryPublic == true">
+                spaceId IS NULL
+            </if>
+            <!-- 分析个人空间 -->
+            <if test="spaceId != null">
+                AND spaceId = #{spaceId}
+            </if>
+            <!-- 分析全空间不需要额外条件 -->
+        </where>
+    </select>
+
 </mapper>
