@@ -95,6 +95,9 @@ public class AliyunAiApi {
             if (StrUtil.isNotBlank(errCode)) {
                 String message = response.getOutput().getMessage();
                 log.info("AI扩图失败：{}", message);
+                if ("InvalidParameter.ImageResolution".equals(response.getOutput().getCode())) {
+                    throw new BusinessException(ErrorCode.OPERATION_ERROR, "图片不能低于512×512像素且不超过4096×4096像素");
+                }
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "AI扩图失败：" + message);
             }
             return response;

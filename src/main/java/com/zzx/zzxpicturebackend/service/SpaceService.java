@@ -8,6 +8,7 @@ import com.zzx.zzxpicturebackend.model.dto.space.SpaceQueryRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceUpdateRequest;
 import com.zzx.zzxpicturebackend.model.po.Space;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.SpaceVO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -98,5 +99,11 @@ public interface SpaceService extends IService<Space> {
      */
     Boolean editSpace(SpaceEditRequest spaceEditRequest, HttpServletRequest request);
 
-
+    /**
+     * 校验权限
+     *
+     * @param loginUser
+     * @param space
+     */
+    void checkSpaceAuth(User loginUser, Space space);
 }

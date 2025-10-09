@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,16 +15,13 @@ import com.zzx.zzxpicturebackend.model.dto.space.SpaceEditRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceQueryRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceUpdateRequest;
 import com.zzx.zzxpicturebackend.model.enums.SpaceLevelEnum;
-import com.zzx.zzxpicturebackend.model.po.Picture;
 import com.zzx.zzxpicturebackend.model.po.Space;
 import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.SpaceVO;
 import com.zzx.zzxpicturebackend.model.vo.UserVO;
-import com.zzx.zzxpicturebackend.service.PictureService;
 import com.zzx.zzxpicturebackend.service.SpaceService;
 import com.zzx.zzxpicturebackend.mapper.SpaceMapper;
 import com.zzx.zzxpicturebackend.service.UserService;
-import lombok.Synchronized;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -266,7 +262,8 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR);
         // 获取用户id，仅本人或者管理员才能删除
         User user = userService.getLoginUser(request);
-        ThrowUtils.throwIf(!(user.getId().equals(space.getUserId()) || user.getUserRole().equals("admin")), ErrorCode.NO_AUTH_ERROR);
+        checkSpaceAuth(user, space);
+        // ThrowUtils.throwIf(!(user.getId().equals(space.getUserId()) || user.getUserRole().equals("admin")), ErrorCode.NO_AUTH_ERROR);
         // 删除空间
         boolean result = this.removeById(id);
         return result;
@@ -315,7 +312,8 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         ThrowUtils.throwIf(oldSpace == null, ErrorCode.NOT_FOUND_ERROR);
         // 校验身份，只有用户本人或者管理员才能编辑
         User user = userService.getLoginUser(request);
-        ThrowUtils.throwIf(!(user.getId().equals(oldSpace.getUserId()) || "admin".equals(user.getUserRole())), ErrorCode.NO_AUTH_ERROR);
+        checkSpaceAuth(user, oldSpace);
+        // ThrowUtils.throwIf(!(user.getId().equals(oldSpace.getUserId()) || "admin".equals(user.getUserRole())), ErrorCode.NO_AUTH_ERROR);
         // 把dto转换成po
         Space space = new Space();
         BeanUtils.copyProperties(spaceEditRequest, space);
@@ -328,6 +326,20 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         boolean result = this.updateById(space);
         return result;
 
+    }
+
+    /**
+     * 校验空间权限 (仅管理员或者空间创建人可以编辑)
+     *
+     * @param loginUser
+     * @param space
+     */
+    @Override
+    public void checkSpaceAuth(User loginUser, Space space) {
+        // 仅管理员或者空间创建人可以编辑
+        if (!space.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
     }
 }
 
