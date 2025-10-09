@@ -26,6 +26,7 @@ import com.zzx.zzxpicturebackend.model.vo.UploadPictureResult;
 import com.zzx.zzxpicturebackend.model.po.Picture;
 import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.PictureVO;
+import com.zzx.zzxpicturebackend.model.vo.analyze.SpaceCategoryAnalyzeResponse;
 import com.zzx.zzxpicturebackend.service.PictureService;
 import com.zzx.zzxpicturebackend.mapper.PictureMapper;
 import com.zzx.zzxpicturebackend.service.SpaceService;
@@ -854,6 +855,16 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     public GetOutPaintingTaskResponse getPictureOutPaintingTask(String taskId) {
         GetOutPaintingTaskResponse outPaintingTask = aliyunAiApi.getOutPaintingTask(taskId);
         return outPaintingTask;
+    }
+
+    /**
+     * 分类统计
+     *
+     * @return
+     */
+    @Override
+    public List<SpaceCategoryAnalyzeResponse> getCategoryStats() {
+       return this.getBaseMapper().selectCategoryStats();
     }
 
     /**

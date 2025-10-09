@@ -5,8 +5,10 @@ import com.zzx.zzxpicturebackend.common.ResultUtils;
 import com.zzx.zzxpicturebackend.common.SpaceAnalyzeRequest;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
+import com.zzx.zzxpicturebackend.model.dto.analyze.SpaceCategoryAnalyzeRequest;
 import com.zzx.zzxpicturebackend.model.dto.analyze.SpaceUsageAnalyzeRequest;
 import com.zzx.zzxpicturebackend.model.po.User;
+import com.zzx.zzxpicturebackend.model.vo.analyze.SpaceCategoryAnalyzeResponse;
 import com.zzx.zzxpicturebackend.model.vo.analyze.SpaceUsageAnalyzeResponse;
 import com.zzx.zzxpicturebackend.service.PictureService;
 import com.zzx.zzxpicturebackend.service.SpaceAnalyzeService;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 空间分析
@@ -55,4 +58,20 @@ public class PictureAnalyzeController {
         return ResultUtils.success(spaceUsageAnalyze);
     }
 
+    /**
+     * 获取空间中图片分类使用情况
+     *
+     * @param spaceCategoryAnalyzeRequest 获取空间图片分类情况参数
+     * @param request                     请求
+     * @return
+     */
+    @PostMapping("/category")
+    public BaseResponse<List<SpaceCategoryAnalyzeResponse>> getCategory(@RequestBody SpaceCategoryAnalyzeRequest spaceCategoryAnalyzeRequest,
+                                                                        HttpServletRequest request) {
+        ThrowUtils.throwIf(spaceCategoryAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        List<SpaceCategoryAnalyzeResponse> spaceCategoryAnalyze = spaceAnalyzeService.getSpaceCategoryAnalyze(spaceCategoryAnalyzeRequest, loginUser);
+        return ResultUtils.success(spaceCategoryAnalyze);
+    }
 }

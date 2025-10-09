@@ -8,10 +8,12 @@ import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
 import com.zzx.zzxpicturebackend.mapper.PictureMapper;
 import com.zzx.zzxpicturebackend.mapper.SpaceMapper;
+import com.zzx.zzxpicturebackend.model.dto.analyze.SpaceCategoryAnalyzeRequest;
 import com.zzx.zzxpicturebackend.model.dto.analyze.SpaceUsageAnalyzeRequest;
 import com.zzx.zzxpicturebackend.model.po.Picture;
 import com.zzx.zzxpicturebackend.model.po.Space;
 import com.zzx.zzxpicturebackend.model.po.User;
+import com.zzx.zzxpicturebackend.model.vo.analyze.SpaceCategoryAnalyzeResponse;
 import com.zzx.zzxpicturebackend.model.vo.analyze.SpaceUsageAnalyzeResponse;
 import com.zzx.zzxpicturebackend.service.PictureService;
 import com.zzx.zzxpicturebackend.service.SpaceAnalyzeService;
@@ -88,6 +90,24 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
             spaceUsageAnalyzeResponse.setCountUsageRatio(countUsageRatio);
             return spaceUsageAnalyzeResponse;
         }
+    }
+
+    /**
+     * 获取空间中图片分类使用情况
+     *
+     * @param spaceCategoryAnalyzeRequest
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public List<SpaceCategoryAnalyzeResponse> getSpaceCategoryAnalyze(SpaceCategoryAnalyzeRequest spaceCategoryAnalyzeRequest, User loginUser) {
+        // 判断登录
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        // 校验权限
+        checkSpaceAnalyzeAuth(spaceCategoryAnalyzeRequest, loginUser);
+        // 查询数据 select category,count(id),sum(picSize) from picture group by category;
+        List<SpaceCategoryAnalyzeResponse> spaceCategoryAnalyzeList = pictureService.getCategoryStats();
+        return spaceCategoryAnalyzeList;
     }
 
 

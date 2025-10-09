@@ -9,6 +9,7 @@ import com.zzx.zzxpicturebackend.model.po.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.PictureVO;
+import com.zzx.zzxpicturebackend.model.vo.analyze.SpaceCategoryAnalyzeResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -156,4 +157,12 @@ public interface PictureService extends IService<Picture> {
      * @return
      */
     GetOutPaintingTaskResponse getPictureOutPaintingTask(String taskId);
+
+
+    /**
+     * 获取图片分类统计
+     * @return
+     */
+    List<SpaceCategoryAnalyzeResponse> getCategoryStats();
+
 }
