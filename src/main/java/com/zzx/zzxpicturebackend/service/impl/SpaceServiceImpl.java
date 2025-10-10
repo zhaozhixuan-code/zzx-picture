@@ -15,6 +15,7 @@ import com.zzx.zzxpicturebackend.model.dto.space.SpaceEditRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceQueryRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceUpdateRequest;
 import com.zzx.zzxpicturebackend.model.enums.SpaceLevelEnum;
+import com.zzx.zzxpicturebackend.model.enums.SpaceTypeEnum;
 import com.zzx.zzxpicturebackend.model.po.Space;
 import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.SpaceVO;
@@ -53,7 +54,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
     private TransactionTemplate transactionTemplate;
 
     /**
-     * 添加空间
+     * 添加空间（个人空间 - 团队空间）
      *
      * @param spaceAddRequest
      * @param request
@@ -75,6 +76,11 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         if (space.getSpaceLevel() == null) {
             space.setSpaceLevel(SpaceLevelEnum.COMMON.getValue());
         }
+        // 默认新增个人空间
+        if (spaceAddRequest.getSpaceType() == null) {
+            space.setSpaceType(SpaceTypeEnum.PRIVATE.getValue());
+        }
+        // 填充数据
         this.fillSpaceBySpaceLevel(space);
         space.setUserId(userId);
         // 校验参数
@@ -88,8 +94,11 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         synchronized (lock) {
             Long newSpaceId = transactionTemplate.execute(status -> {
                 // 判断用户是否已经有一个空间
-                boolean exists = this.lambdaQuery().eq(Space::getUserId, userId).exists();
-                ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "用户已创建空间");
+                boolean exists = this.lambdaQuery()
+                        .eq(Space::getUserId, userId)
+                        .eq(Space::getSpaceType, spaceAddRequest.getSpaceType())
+                        .exists();
+                ThrowUtils.throwIf(exists, ErrorCode.OPERATION_ERROR, "每个用户每类空间只能创建一个");
                 // 写入数据库
                 boolean result = this.save(space);
                 ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "创建空间失败");
@@ -111,16 +120,20 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         String spaceName = space.getSpaceName();
         Integer spaceLevel = space.getSpaceLevel();
         SpaceLevelEnum spaceLevelEnum = SpaceLevelEnum.getEnumByValue(spaceLevel);
+        Integer spaceType = space.getSpaceType();
         Long userId = space.getUserId();
         // 如果是创建数据
         if (add) {
             ThrowUtils.throwIf(StrUtil.isBlank(spaceName), ErrorCode.PARAMS_ERROR, "空间名称不能为空");
             ThrowUtils.throwIf(spaceLevelEnum == null, ErrorCode.PARAMS_ERROR, "空间等级不能为空");
+            ThrowUtils.throwIf(spaceType == null, ErrorCode.PARAMS_ERROR, "空间类型不能为空");
         }
         // 如果是修改数据，并且是修改空间等级
         ThrowUtils.throwIf(spaceLevel != null && spaceLevelEnum == null, ErrorCode.PARAMS_ERROR, "空间等级不存在");
         // 如果是修改数据，并且是修改空间名称
         ThrowUtils.throwIf(StrUtil.isNotBlank(spaceName) && spaceName.length() > 30, ErrorCode.PARAMS_ERROR, "空间名称不能为空");
+        // 如果是修改数据，并且是修改空间类型
+        ThrowUtils.throwIf(spaceType != null && SpaceTypeEnum.getEnumByValue(spaceType) == null, ErrorCode.PARAMS_ERROR, "空间类型不存在");
     }
 
     /**
@@ -212,11 +225,13 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
         Integer spaceLevel = spaceQueryRequest.getSpaceLevel();
         String sortField = spaceQueryRequest.getSortField();
         String sortOrder = spaceQueryRequest.getSortOrder();
+        Integer spaceType = spaceQueryRequest.getSpaceType();
         // 拼接查询条件
         queryWrapper.eq(ObjUtil.isNotEmpty(id), "id", id);
         queryWrapper.eq(ObjUtil.isNotEmpty(userId), "userId", userId);
         queryWrapper.like(StrUtil.isNotBlank(spaceName), "spaceName", spaceName);
         queryWrapper.eq(ObjUtil.isNotEmpty(spaceLevel), "spaceLevel", spaceLevel);
+        queryWrapper.eq(ObjUtil.isNotEmpty(spaceType), "spaceType", spaceType);
         // 排序
         queryWrapper.orderBy(StrUtil.isNotBlank(sortField), sortOrder.equals("ascend"), sortField);
         return queryWrapper;

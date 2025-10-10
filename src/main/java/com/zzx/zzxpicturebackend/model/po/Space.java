@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.zzx.zzxpicturebackend.model.enums.PictureReviewEnum;
 import lombok.Data;
 
 /**
@@ -34,6 +35,11 @@ public class Space implements Serializable {
      * 空间级别：0-普通版 1-专业版 2-旗舰版
      */
     private Integer spaceLevel;
+
+    /**
+     * 空间类型：0-个人空间 1-团队空间
+     */
+    private Integer spaceType;
 
     /**
      * 空间图片的最大总大小
