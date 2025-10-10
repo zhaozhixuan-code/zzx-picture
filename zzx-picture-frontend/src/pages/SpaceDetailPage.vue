@@ -7,6 +7,15 @@
         <a-button type="primary" :href="`/add_picture?spaceId=${id}`" target="_blank">
           + 创建图片
         </a-button>
+        <a-button
+          type="primary"
+          ghost
+          :icon="h(BarChartOutlined)"
+          :href="`/space_analyze?spaceId=${id}`"
+        >
+          空间分析
+        </a-button>
+
         <a-button :icon="h(EditOutlined)" @click="doBatchEdit"> 批量编辑</a-button>
 
         <a-tooltip
@@ -60,7 +69,7 @@ import {
 import { onMounted, ref, h, computed, reactive } from 'vue'
 import { message } from 'ant-design-vue'
 import { downloadImage, formatSize } from '../utils'
-import { EditOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons-vue'
+import { EditOutlined, DeleteOutlined, DownloadOutlined,BarChartOutlined } from '@ant-design/icons-vue'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import router from '@/router'
 import { getSpaceVoByIdUsingGet } from '@/api/spaceController.ts'

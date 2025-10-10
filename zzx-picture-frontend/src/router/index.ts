@@ -64,6 +64,10 @@ const router = createRouter({
       name: '空间详情',
       component: () => import('../pages/SpaceDetailPage.vue'),
       props: true,
+    },{
+      path: '/space_analyze',
+      name: '空间分析',
+      component: () => import('../pages/SpaceAnalyzePage.vue'),
     },
     {
       path: '/search_picture',
