@@ -15,13 +15,16 @@ import com.zzx.zzxpicturebackend.model.dto.space.SpaceEditRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceQueryRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceUpdateRequest;
 import com.zzx.zzxpicturebackend.model.enums.SpaceLevelEnum;
+import com.zzx.zzxpicturebackend.model.enums.SpaceRoleEnum;
 import com.zzx.zzxpicturebackend.model.enums.SpaceTypeEnum;
 import com.zzx.zzxpicturebackend.model.po.Space;
+import com.zzx.zzxpicturebackend.model.po.SpaceUser;
 import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.SpaceVO;
 import com.zzx.zzxpicturebackend.model.vo.UserVO;
 import com.zzx.zzxpicturebackend.service.SpaceService;
 import com.zzx.zzxpicturebackend.mapper.SpaceMapper;
+import com.zzx.zzxpicturebackend.service.SpaceUserService;
 import com.zzx.zzxpicturebackend.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -52,6 +55,9 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
     // 创建事务模板
     @Resource
     private TransactionTemplate transactionTemplate;
+
+    @Resource
+    private SpaceUserService spaceUserService;
 
     /**
      * 添加空间（个人空间 - 团队空间）
@@ -102,6 +108,15 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
                 // 写入数据库
                 boolean result = this.save(space);
                 ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "创建空间失败");
+                // 如果创建的是团队空间，则需要把用户自己添加到空间成员中
+                if (spaceAddRequest.getSpaceType().equals(SpaceTypeEnum.TEAM.getValue())) {
+                    SpaceUser spaceUser = new SpaceUser();
+                    spaceUser.setSpaceId(space.getId());
+                    spaceUser.setUserId(userId);
+                    spaceUser.setSpaceRole(SpaceRoleEnum.ADMIN.getValue());
+                    result = spaceUserService.save(spaceUser);
+                    ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "添加空间成员失败");
+                }
                 return space.getId();
             });
             return newSpaceId;

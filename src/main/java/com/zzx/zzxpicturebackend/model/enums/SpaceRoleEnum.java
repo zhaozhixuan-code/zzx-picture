@@ -4,17 +4,18 @@ import cn.hutool.core.util.ObjUtil;
 import lombok.Getter;
 
 /**
- * 空间类型枚举
+ * 空间角色类型枚举
  */
 @Getter
-public enum SpaceTypeEnum {
-    PRIVATE("私有空间", 0),
-    TEAM("公共空间", 1);
+public enum SpaceRoleEnum {
+    VIEWER("浏览者", "viewer"),
+    EDITOR("编辑者", "editor"),
+    ADMIN("管理员", "admin");
 
     private final String text;
-    private final Integer value;
+    private final String value;
 
-    SpaceTypeEnum(String text, Integer value) {
+    SpaceRoleEnum(String text, String value) {
         this.text = text;
         this.value = value;
     }
@@ -25,13 +26,13 @@ public enum SpaceTypeEnum {
      * @param value 枚举值的value
      * @return 枚举值
      */
-    public static SpaceTypeEnum getEnumByValue(Integer value) {
+    public static SpaceRoleEnum getEnumByValue(String value) {
         if (ObjUtil.isEmpty(value)) {
             return null;
         }
-        for (SpaceTypeEnum spaceTypeEnum : SpaceTypeEnum.values()) {
-            if (spaceTypeEnum.value.equals(value)) {
-                return spaceTypeEnum;
+        for (SpaceRoleEnum spaceRoleEnum : SpaceRoleEnum.values()) {
+            if (spaceRoleEnum.value.equals(value)) {
+                return spaceRoleEnum;
             }
         }
         return null;
