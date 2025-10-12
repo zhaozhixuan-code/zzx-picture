@@ -8,9 +8,11 @@ import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRespons
 import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
 import com.zzx.zzxpicturebackend.api.imagesearch.ImageSearchApiFacade;
 import com.zzx.zzxpicturebackend.api.imagesearch.model.ImageSearchResult;
+import com.zzx.zzxpicturebackend.auth.annotation.SaSpaceCheckPermission;
 import com.zzx.zzxpicturebackend.common.BaseResponse;
 import com.zzx.zzxpicturebackend.common.DeleteRequest;
 import com.zzx.zzxpicturebackend.common.ResultUtils;
+import com.zzx.zzxpicturebackend.constant.SpaceUserPermissionConstant;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
 import com.zzx.zzxpicturebackend.model.dto.picture.*;
@@ -58,6 +60,7 @@ public class SpaceUserController {
      * @return
      */
     @PostMapping("/add")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.SPACE_USER_MANAGE)
     public BaseResponse<Long> addSpaceUser(@RequestBody SpaceUserAddRequest spaceUserAddRequest) {
         ThrowUtils.throwIf(spaceUserAddRequest == null, ErrorCode.PARAMS_ERROR);
         Long id = spaceUserService.addSpaceUser(spaceUserAddRequest);
@@ -71,6 +74,7 @@ public class SpaceUserController {
      * @return
      */
     @PostMapping("/delete")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.SPACE_USER_MANAGE)
     public BaseResponse<Boolean> deleteSpaceUser(@RequestBody DeleteRequest deleteRequest) {
         ThrowUtils.throwIf(deleteRequest == null, ErrorCode.PARAMS_ERROR);
         Boolean result = spaceUserService.deleteSpaceUser(deleteRequest);
@@ -84,6 +88,7 @@ public class SpaceUserController {
      * @return
      */
     @PostMapping("/update")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.SPACE_USER_MANAGE)
     public BaseResponse<Boolean> updateSpaceUser(@RequestBody SpaceUserUpdateRequest spaceUserUpdateRequest) {
         ThrowUtils.throwIf(spaceUserUpdateRequest == null, ErrorCode.PARAMS_ERROR);
         Boolean result = spaceUserService.updateSpaceUser(spaceUserUpdateRequest);
@@ -98,6 +103,7 @@ public class SpaceUserController {
      * @return
      */
     @PostMapping("/list")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.SPACE_USER_MANAGE)
     public BaseResponse<List<SpaceUserVO>> listSpaceUser(@RequestBody SpaceUserQueryRequest spaceUserQueryRequest) {
         ThrowUtils.throwIf(spaceUserQueryRequest == null, ErrorCode.PARAMS_ERROR);
         // 查询空间成员

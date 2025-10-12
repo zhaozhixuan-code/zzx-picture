@@ -14,7 +14,10 @@ import com.zzx.zzxpicturebackend.api.aliyunai.AliyunAiApi;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
+import com.zzx.zzxpicturebackend.auth.SpaceUserAuthManager;
+import com.zzx.zzxpicturebackend.auth.StpKit;
 import com.zzx.zzxpicturebackend.constant.RedisConstant;
+import com.zzx.zzxpicturebackend.constant.SpaceUserPermissionConstant;
 import com.zzx.zzxpicturebackend.exception.BusinessException;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
@@ -41,6 +44,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -102,6 +106,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     // 引入阿里云
     @Resource
     private AliyunAiApi aliyunAiApi;
+
+    @Resource
+    private SpaceUserAuthManager spaceUserAuthManager;
 
     /**
      * 上传图片
@@ -257,8 +264,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 获取用户id，仅本人或者管理员才能删除
         User loginUser = userService.getLoginUser(request);
         // ThrowUtils.throwIf(!(user.getId().equals(oldPicture.getUserId()) || user.getUserRole().equals("admin")), ErrorCode.NO_AUTH_ERROR);
-        // 校验权限
-        checkPictureAuth(loginUser, oldPicture);
+        // 校验权限 已经改为 Sa-Token 校验
+        // checkPictureAuth(loginUser, oldPicture);
         // 开启事务，需要删除图片和修改空间额度
         transactionTemplate.execute(status -> {
             // 删除图片
@@ -372,15 +379,25 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
         // 空间权限校验
         Long spaceId = picture.getSpaceId();
+        Space space = null;
         if (spaceId != null) {
+            boolean b = StpKit.SPACE.hasPermission(SpaceUserPermissionConstant.PICTURE_VIEW);
+            ThrowUtils.throwIf(!b, ErrorCode.NO_AUTH_ERROR);
+            // 已经改为 Sa-Token 校验
             User loginUser = userService.getLoginUser(request);
             checkPictureAuth(loginUser, picture);
+            // 获取用户权限
+            space = spaceService.getById(spaceId);
         }
+        // 获取到权限列表
+        User loginUser = userService.getLoginUser(request);
+        List<String> permissionList = spaceUserAuthManager.getPermissionList(space, loginUser);
         // 封装返回
         PictureVO pictureVO = new PictureVO();
         BeanUtil.copyProperties(picture, pictureVO);
         pictureVO.setTags(JSONUtil.toList(picture.getTags(), String.class));
         pictureVO.setUserVO(userService.getUserVO(userService.getById(picture.getUserId())));
+        pictureVO.setPermissionList(permissionList);
         return pictureVO;
     }
 
@@ -494,6 +511,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
                 return cachePage;
             }
         } else {
+            boolean b = StpKit.SPACE.hasPermission(SpaceUserPermissionConstant.PICTURE_VIEW);
+            ThrowUtils.throwIf(!b, ErrorCode.NO_AUTH_ERROR);
             // 私有空间不需要进行缓存
             User loginUser = userService.getLoginUser(request);
             Space space = spaceService.getById(spaceId);
@@ -833,7 +852,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         Picture picture = this.getById(createPictureOutPaintingTaskRequest.getPictureId());
         ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
         // 校验权限（公共图库：只有创建人和管留言可以操作，私有图库：只有创建人可以操作）
-        this.checkPictureAuth(loginUser, picture);
+        // 已经改为 Sa-Token 校验
+        // this.checkPictureAuth(loginUser, picture);
         // 构造请求参数
         CreateOutPaintingTaskRequest request = new CreateOutPaintingTaskRequest();
         CreateOutPaintingTaskRequest.Input input = new CreateOutPaintingTaskRequest.Input();
@@ -865,7 +885,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
      */
     @Override
     public List<SpaceCategoryAnalyzeResponse> getCategoryStats() {
-       return this.getBaseMapper().selectCategoryStats();
+        return this.getBaseMapper().selectCategoryStats();
     }
 
     /**

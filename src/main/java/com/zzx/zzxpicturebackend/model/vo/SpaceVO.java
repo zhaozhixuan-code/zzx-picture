@@ -8,7 +8,9 @@ import com.zzx.zzxpicturebackend.model.po.Space;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 空间视图对象
@@ -83,6 +85,10 @@ public class SpaceVO implements Serializable {
      */
     private UserVO userVO;
 
+    /**
+     * 权限列表
+     */
+    private List<String> permissionList = new ArrayList<>();
 
     /**
      * vo 转 po 工具类

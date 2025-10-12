@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zzx.zzxpicturebackend.auth.SpaceUserAuthManager;
 import com.zzx.zzxpicturebackend.exception.BusinessException;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
@@ -27,6 +28,7 @@ import com.zzx.zzxpicturebackend.mapper.SpaceMapper;
 import com.zzx.zzxpicturebackend.service.SpaceUserService;
 import com.zzx.zzxpicturebackend.service.UserService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -58,6 +60,9 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
 
     @Resource
     private SpaceUserService spaceUserService;
+
+    @Resource
+    private SpaceUserAuthManager spaceUserAuthManager;
 
     /**
      * 添加空间（个人空间 - 团队空间）
@@ -168,6 +173,8 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
             User user = userService.getById(userId);
             UserVO userVO = userService.getUserVO(user);
             spaceVO.setUserVO(userVO);
+            List<String> permissionList = spaceUserAuthManager.getPermissionList(space, user);
+            spaceVO.setPermissionList(permissionList);
         }
         return spaceVO;
     }
