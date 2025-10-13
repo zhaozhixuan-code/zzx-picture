@@ -1,10 +1,10 @@
-package com.zzx.zzxpicturebackend.auth;
+package com.zzx.zzxpicturebackend.manager.auth;
 
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.zzx.zzxpicturebackend.auth.model.SpaceUserAuthConfig;
-import com.zzx.zzxpicturebackend.auth.model.SpaceUserRole;
+import com.zzx.zzxpicturebackend.manager.auth.model.SpaceUserAuthConfig;
+import com.zzx.zzxpicturebackend.manager.auth.model.SpaceUserRole;
 import com.zzx.zzxpicturebackend.constant.SpaceUserPermissionConstant;
 import com.zzx.zzxpicturebackend.model.enums.SpaceRoleEnum;
 import com.zzx.zzxpicturebackend.model.enums.SpaceTypeEnum;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.zzx.zzxpicturebackend.auth.model;
+package com.zzx.zzxpicturebackend.manager.auth.model;
 
 import lombok.Data;
 

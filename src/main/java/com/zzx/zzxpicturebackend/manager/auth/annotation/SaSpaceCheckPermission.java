@@ -1,8 +1,8 @@
-package com.zzx.zzxpicturebackend.auth.annotation;
+package com.zzx.zzxpicturebackend.manager.auth.annotation;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.annotation.SaMode;
-import com.zzx.zzxpicturebackend.auth.StpKit;
+import com.zzx.zzxpicturebackend.manager.auth.StpKit;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

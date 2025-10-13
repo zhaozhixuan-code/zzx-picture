@@ -1,41 +1,26 @@
 package com.zzx.zzxpicturebackend.controller;
 
 
-import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zzx.zzxpicturebackend.annotation.AuthCheck;
-import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
-import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
-import com.zzx.zzxpicturebackend.api.imagesearch.ImageSearchApiFacade;
-import com.zzx.zzxpicturebackend.api.imagesearch.model.ImageSearchResult;
-import com.zzx.zzxpicturebackend.auth.annotation.SaSpaceCheckPermission;
+import com.zzx.zzxpicturebackend.manager.auth.annotation.SaSpaceCheckPermission;
 import com.zzx.zzxpicturebackend.common.BaseResponse;
 import com.zzx.zzxpicturebackend.common.DeleteRequest;
 import com.zzx.zzxpicturebackend.common.ResultUtils;
 import com.zzx.zzxpicturebackend.constant.SpaceUserPermissionConstant;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
-import com.zzx.zzxpicturebackend.model.dto.picture.*;
 import com.zzx.zzxpicturebackend.model.dto.spaceuser.SpaceUserAddRequest;
 import com.zzx.zzxpicturebackend.model.dto.spaceuser.SpaceUserQueryRequest;
 import com.zzx.zzxpicturebackend.model.dto.spaceuser.SpaceUserUpdateRequest;
-import com.zzx.zzxpicturebackend.model.enums.UserRoleEnum;
-import com.zzx.zzxpicturebackend.model.po.Picture;
-import com.zzx.zzxpicturebackend.model.po.PictureTagCategory;
 import com.zzx.zzxpicturebackend.model.po.SpaceUser;
 import com.zzx.zzxpicturebackend.model.po.User;
-import com.zzx.zzxpicturebackend.model.vo.PictureVO;
 import com.zzx.zzxpicturebackend.model.vo.SpaceUserVO;
-import com.zzx.zzxpicturebackend.service.PictureService;
 import com.zzx.zzxpicturebackend.service.SpaceUserService;
 import com.zzx.zzxpicturebackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.List;
 
 /**

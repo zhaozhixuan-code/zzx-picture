@@ -1,4 +1,4 @@
-package com.zzx.zzxpicturebackend.auth;
+package com.zzx.zzxpicturebackend.manager.auth;
 
 import com.zzx.zzxpicturebackend.model.po.Picture;
 import com.zzx.zzxpicturebackend.model.po.Space;

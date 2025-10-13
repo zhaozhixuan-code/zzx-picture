@@ -14,8 +14,8 @@ import com.zzx.zzxpicturebackend.api.aliyunai.AliyunAiApi;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
-import com.zzx.zzxpicturebackend.auth.SpaceUserAuthManager;
-import com.zzx.zzxpicturebackend.auth.StpKit;
+import com.zzx.zzxpicturebackend.manager.auth.SpaceUserAuthManager;
+import com.zzx.zzxpicturebackend.manager.auth.StpKit;
 import com.zzx.zzxpicturebackend.constant.RedisConstant;
 import com.zzx.zzxpicturebackend.constant.SpaceUserPermissionConstant;
 import com.zzx.zzxpicturebackend.exception.BusinessException;
@@ -44,7 +44,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -187,8 +186,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
         // 存入数据库
         Picture picture = new Picture();
-        // 补充设置 spaceId
-        picture.setSpaceId(spaceId);
+        // 补充设置 spaceId ，为了兼容分表逻辑，默认为0
+        picture.setSpaceId(spaceId == null ? 0L : spaceId);
         picture.setUrl(uploadPictureResult.getUrl());
         picture.setThumbnailUrl(uploadPictureResult.getThumbnailUrl());
         // 补充设置 originalUrl
@@ -269,7 +268,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 开启事务，需要删除图片和修改空间额度
         transactionTemplate.execute(status -> {
             // 删除图片
-            boolean result = this.removeById(pictureId);
+            // 删除图片时，补充设置spaceId作为查询条件
+            QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("id", pictureId)
+                    .eq("spaceId", oldPicture.getSpaceId());
+            boolean result = this.remove(queryWrapper);
+            // boolean result = this.removeById(pictureId);
             ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "删除图片失败");
             // 修改空间额度
             Long spaceId = oldPicture.getSpaceId();
@@ -331,7 +335,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         this.fileReviewParams(picture, userService.getLoginUser(request));
         // 设置tags
         picture.setTags(JSONUtil.toJsonStr(pictureUpdateRequest.getTags()));
-        boolean result = this.updateById(picture);
+        // boolean result = this.updateById(picture);
+        // 补充条件修改 spaceId = 0
+        QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id", pictureUpdateRequest.getId())
+                .eq("spaceId", 0);
+        boolean result = this.update(picture, queryWrapper);
         return result;
     }
 
@@ -359,7 +368,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         picture.setEditTime(new Date());
         // 补充审核参数
         this.fileReviewParams(picture, user);
-        boolean result = this.updateById(picture);
+        // boolean result = this.updateById(picture);
+        // 补充条件修改 spaceId = 0
+        QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id", pictureUpdateRequest.getId())
+                .eq("spaceId", 0);
+        boolean result = this.update(picture, queryWrapper);
         return result;
     }
 
@@ -380,7 +394,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 空间权限校验
         Long spaceId = picture.getSpaceId();
         Space space = null;
-        if (spaceId != null) {
+        // 补充查询权限 spaceId != 0
+        if (spaceId != null && spaceId != 0) {
             boolean b = StpKit.SPACE.hasPermission(SpaceUserPermissionConstant.PICTURE_VIEW);
             ThrowUtils.throwIf(!b, ErrorCode.NO_AUTH_ERROR);
             // 已经改为 Sa-Token 校验
@@ -447,7 +462,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         queryWrapper.eq(ObjUtil.isNotEmpty(id), "id", id);
         queryWrapper.eq(ObjUtil.isNotEmpty(userId), "userId", userId);
         queryWrapper.eq(ObjUtil.isNotEmpty(spaceId), "spaceId", spaceId);
-        queryWrapper.isNull(nullSpaceId, "spaceId");
+        // 修改空间查询条件，如果查询公共图库应该为 0
+        queryWrapper.eq(nullSpaceId, "spaceId", 0);
+        // queryWrapper.isNull(nullSpaceId, "spaceId");
         queryWrapper.like(StrUtil.isNotBlank(name), "name", name);
         queryWrapper.like(StrUtil.isNotBlank(introduction), "introduction", introduction);
         queryWrapper.like(StrUtil.isNotBlank(picFormat), "picFormat", picFormat);

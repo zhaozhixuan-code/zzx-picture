@@ -7,10 +7,11 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zzx.zzxpicturebackend.auth.SpaceUserAuthManager;
+import com.zzx.zzxpicturebackend.manager.auth.SpaceUserAuthManager;
 import com.zzx.zzxpicturebackend.exception.BusinessException;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
+import com.zzx.zzxpicturebackend.manager.sharding.DynamicShardingManager;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceAddRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceEditRequest;
 import com.zzx.zzxpicturebackend.model.dto.space.SpaceQueryRequest;
@@ -29,6 +30,7 @@ import com.zzx.zzxpicturebackend.service.SpaceUserService;
 import com.zzx.zzxpicturebackend.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -63,6 +65,10 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
 
     @Resource
     private SpaceUserAuthManager spaceUserAuthManager;
+
+    @Resource
+    @Lazy
+    private DynamicShardingManager dynamicShardingManager;
 
     /**
      * 添加空间（个人空间 - 团队空间）
@@ -122,6 +128,8 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
                     result = spaceUserService.save(spaceUser);
                     ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "添加空间成员失败");
                 }
+                // 动态创建分表（仅对团队空间生效）
+                dynamicShardingManager.createSpacePictureTable(space);
                 return space.getId();
             });
             return newSpaceId;

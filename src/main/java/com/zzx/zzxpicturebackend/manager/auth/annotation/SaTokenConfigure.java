@@ -1,4 +1,4 @@
-package com.zzx.zzxpicturebackend.auth.annotation;
+package com.zzx.zzxpicturebackend.manager.auth.annotation;
 
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.strategy.SaAnnotationStrategy;

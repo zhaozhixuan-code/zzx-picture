@@ -34,6 +34,33 @@ spring:
     multipart:
       max-file-size: 20MB
       max-request-size: 20MB
+  # 使用 shardingSphere 空间图片分表
+  shardingsphere:
+    datasource:
+      names: zzx_picture  # 数据库名称
+      zzx_picture: # 数据源名称
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://${picture.mysql.host}:${picture.mysql.port}/${picture.mysql.database}
+        username: ${picture.mysql.username}
+        password: ${picture.mysql.password}
+    rules:
+      sharding:
+        tables:
+          picture: # 配置 picture 表的分片规则
+            actual-data-nodes: zzx_picture.picture  # 动态分表
+            table-strategy:
+              standard:
+                sharding-column: spaceId # 分表字段
+                sharding-algorithm-name: picture_sharding_algorithm  # 使用自定义分片算法
+        sharding-algorithms:
+          picture_sharding_algorithm:
+            type: CLASS_BASED
+            props:
+              strategy: standard # 标准分片
+              algorithmClassName: com.zzx.zzxpicturebackend.manager.sharding.PictureShardingAlgorithm # 自定义分片算法
+    props:
+      sql-show: true # 显示分片后的实际 SQL 语句，用于调试
 
 mybatis-plus:
   configuration:
@@ -41,6 +68,8 @@ mybatis-plus:
     # 仅在开发环境开启日志
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
+    # 启用 SQL 运行器
+    enable-sql-runner: true
     db-config:
       logic-delete-field: is_delete  # 全局逻辑删除
       logic-delete-value: 1    # 逻辑删除值（默认为1）

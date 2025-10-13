@@ -1,4 +1,4 @@
-package com.zzx.zzxpicturebackend.auth;
+package com.zzx.zzxpicturebackend.manager.auth;
 
 import cn.dev33.satoken.stp.StpInterface;
 import cn.hutool.core.bean.BeanUtil;
