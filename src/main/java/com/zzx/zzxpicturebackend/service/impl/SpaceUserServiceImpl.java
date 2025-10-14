@@ -58,12 +58,13 @@ public class SpaceUserServiceImpl extends ServiceImpl<SpaceUserMapper, SpaceUser
     public Long addSpaceUser(SpaceUserAddRequest spaceUserAddRequest) {
         SpaceUser spaceUser = new SpaceUser();
         BeanUtil.copyProperties(spaceUserAddRequest, spaceUser);
-        // 校验参数
-        validSpace(spaceUser, true);
+
         // 如果没有传递空间角色默认为浏览者
         if (spaceUser.getSpaceRole() == null) {
             spaceUser.setSpaceRole(SpaceRoleEnum.VIEWER.getValue());
         }
+        // 校验参数
+        validSpace(spaceUser, true);
         // 存入数据库
         boolean save = this.save(spaceUser);
         ThrowUtils.throwIf(!save, ErrorCode.OPERATION_ERROR, "添加空间成员失败");

@@ -13,9 +13,9 @@ public class SpaceUserUpdateRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 用户id
+     * id
      */
-    private Long userId;
+    private Long id;
 
     /**
      * 空间角色：viewer/editor/admin

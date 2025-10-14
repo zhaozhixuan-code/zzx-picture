@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zzx.zzxpicturebackend.exception.BusinessException;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
+import com.zzx.zzxpicturebackend.manager.auth.StpKit;
 import com.zzx.zzxpicturebackend.mapper.UserMapper;
 import com.zzx.zzxpicturebackend.model.dto.user.UserAddRequest;
 import com.zzx.zzxpicturebackend.model.dto.user.UserQueryRequest;
@@ -130,8 +131,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
         // 存入ThreadLocal
         BaseContext.setCurrentId(user.getId());
-        // 4. 返回脱敏后的用户信息
-        LoginUserVO loginUserVo = getLoginUserVO(user);
+        // 4. 记录用户登录态到 Sa-Token
+        StpKit.SPACE.login(user.getId());
+        StpKit.SPACE.getSession().set(USER_LOGIN_STATE, user);
+        // 5. 返回脱敏后的用户信息
+        LoginUserVO loginUserVo = this.getLoginUserVO(user);
         return loginUserVo;
     }
 

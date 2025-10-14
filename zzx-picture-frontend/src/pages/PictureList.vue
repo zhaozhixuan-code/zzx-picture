@@ -35,16 +35,16 @@
                 <search-outlined />
                 搜索
               </a-space>
-              <a-space @click="(e) => doEdit(picture, e)">
-                <edit-outlined v-if="canEdit" />
+              <a-space @click="(e) => doEdit(picture, e)" v-if="canEdit">
+                <edit-outlined />
                 编辑
               </a-space>
               <a-space @click="(e) => doShare(picture, e)">
                 <ShareAltOutlined />
                 分享
               </a-space>
-              <a-space @click="(e) => doDelete(picture, e)">
-                <delete-outlined v-if="canDelete" />
+              <a-space @click="(e) => doDelete(picture, e)" v-if="canDelete">
+                <delete-outlined />
                 删除
               </a-space>
             </template>
@@ -58,7 +58,12 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { DeleteOutlined, EditOutlined, SearchOutlined,ShareAltOutlined} from '@ant-design/icons-vue'
+import {
+  DeleteOutlined,
+  EditOutlined,
+  SearchOutlined,
+  ShareAltOutlined,
+} from '@ant-design/icons-vue'
 import { deletePictureUsingPost } from '@/api/pictureController.ts'
 import { message } from 'ant-design-vue'
 import ShareModal from '@/components/ShareModal.vue'
@@ -124,7 +129,6 @@ const doDelete = async (picture, e) => {
   }
 }
 
-
 // 分享弹窗引用
 const shareModalRef = ref()
 // 分享链接
@@ -138,7 +142,6 @@ const doShare = (picture: API.PictureVO, e: Event) => {
     shareModalRef.value.openModal()
   }
 }
-
 </script>
 
 <style scoped></style>

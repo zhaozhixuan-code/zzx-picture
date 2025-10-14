@@ -34,7 +34,8 @@ import java.util.stream.Collectors;
  * 动态分表管理
  * 首次加载项目时需要更新分表配置
  */
-@Component
+// TODO 关闭分表
+// @Component
 @Slf4j
 public class DynamicShardingManager {
 

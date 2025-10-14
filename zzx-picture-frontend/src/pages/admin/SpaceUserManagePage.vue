@@ -168,6 +168,7 @@ const doDelete = async (id: string) => {
 onMounted(() => {
   fetchData()
 })
+
 const editSpaceRole = async (value, record) => {
   const res = await updateSpaceUserUsingPost({
     id: record.id,
