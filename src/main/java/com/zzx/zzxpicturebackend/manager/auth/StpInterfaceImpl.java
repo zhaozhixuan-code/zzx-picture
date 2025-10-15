@@ -24,6 +24,7 @@ import com.zzx.zzxpicturebackend.service.PictureService;
 import com.zzx.zzxpicturebackend.service.SpaceService;
 import com.zzx.zzxpicturebackend.service.SpaceUserService;
 import com.zzx.zzxpicturebackend.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.digester.ArrayStack;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -40,6 +41,7 @@ import static com.zzx.zzxpicturebackend.constant.UserConstant.USER_LOGIN_STATE;
  * 自定义权限加载接口实现类
  */
 @Component    // 保证此类被 SpringBoot 扫描，完成 Sa-Token 的自定义权限验证扩展
+@Slf4j
 public class StpInterfaceImpl implements StpInterface {
 
     // 获取上下文路径: /api
@@ -108,7 +110,7 @@ public class StpInterfaceImpl implements StpInterface {
         }
         // 7. 如果没有 spaceUserId，尝试通过 spaceId 或 pictureId 获取 Space 对象并处理
         Long spaceId = authContext.getSpaceId();
-        if (spaceId == null) {
+        if (spaceId == null || spaceId == 0L) {
             // 7.1 如果没有 spaceId，通过 pictureId 获取 Picture 对象和 Space 对象
             Long pictureId = authContext.getPictureId();
             // 7.2 图片 id 也没有，则默认通过权限校验
@@ -199,6 +201,7 @@ public class StpInterfaceImpl implements StpInterface {
         SpaceUserAuthContext authRequest;
         // 如果是 post 请求
         if (ContentType.JSON.getValue().equals(contentType)) {
+
             String body = ServletUtil.getBody(request);
             authRequest = JSONUtil.toBean(body, SpaceUserAuthContext.class);
         } else {

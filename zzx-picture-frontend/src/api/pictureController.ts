@@ -3,7 +3,10 @@
 import request from '@/request'
 
 /** deletePicture POST /api/picture/delete */
-export async function deletePictureUsingPost(body: number, options?: { [key: string]: any }) {
+export async function deletePictureUsingPost(
+  body: API.DeleteRequest,
+  options?: { [key: string]: any }
+) {
   return request<API.BaseResponseBoolean_>('/api/picture/delete', {
     method: 'POST',
     headers: {

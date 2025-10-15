@@ -8,6 +8,7 @@ import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRespons
 import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
 import com.zzx.zzxpicturebackend.api.imagesearch.ImageSearchApiFacade;
 import com.zzx.zzxpicturebackend.api.imagesearch.model.ImageSearchResult;
+import com.zzx.zzxpicturebackend.common.DeleteRequest;
 import com.zzx.zzxpicturebackend.manager.auth.annotation.SaSpaceCheckPermission;
 import com.zzx.zzxpicturebackend.common.BaseResponse;
 import com.zzx.zzxpicturebackend.common.ResultUtils;
@@ -93,13 +94,14 @@ public class PictureController {
     /**
      * 删除照片
      *
-     * @param id 照片id
+     * @param deleteRequest 照片id
      * @return 是否删除成功
      */
     @PostMapping("/delete")
     @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.PICTURE_DELETE)
-    public BaseResponse<Boolean> deletePicture(@RequestBody Long id, HttpServletRequest request) {
-        Boolean result = pictureService.deletePicture(id, request);
+    public BaseResponse<Boolean> deletePicture(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(deleteRequest == null, ErrorCode.PARAMS_ERROR);
+        Boolean result = pictureService.deletePicture(deleteRequest.getId(), request);
         return ResultUtils.success(result);
     }
 

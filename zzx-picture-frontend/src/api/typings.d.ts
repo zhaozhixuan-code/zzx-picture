@@ -589,8 +589,8 @@ declare namespace API {
   }
 
   type SpaceUserUpdateRequest = {
+    id?: number
     spaceRole?: string
-    userId?: number
   }
 
   type SpaceUserVO = {

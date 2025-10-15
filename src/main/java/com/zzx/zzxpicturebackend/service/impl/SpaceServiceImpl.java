@@ -66,9 +66,8 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
     @Resource
     private SpaceUserAuthManager spaceUserAuthManager;
 
-    // TODO 关闭分表
-    // @Resource
-    // @Lazy
+    @Resource
+    @Lazy
     private DynamicShardingManager dynamicShardingManager;
 
     /**
@@ -129,8 +128,8 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
                     result = spaceUserService.save(spaceUser);
                     ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "添加空间成员失败");
                 }
-                // 动态创建分表（仅对团队空间生效） TODO 关闭分表
-                // dynamicShardingManager.createSpacePictureTable(space);
+                // 动态创建分表（仅对团队空间生效）
+                dynamicShardingManager.createSpacePictureTable(space);
                 return space.getId();
             });
             return newSpaceId;

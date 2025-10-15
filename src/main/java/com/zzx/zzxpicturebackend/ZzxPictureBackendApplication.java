@@ -5,8 +5,8 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-// TODO 关闭分表
-@SpringBootApplication(exclude = {ShardingSphereAutoConfiguration.class})
+
+@SpringBootApplication()
 @MapperScan("com.zzx.zzxpicturebackend.mapper") // mp扫描包
 @EnableAspectJAutoProxy(exposeProxy = true)
 public class ZzxPictureBackendApplication {
