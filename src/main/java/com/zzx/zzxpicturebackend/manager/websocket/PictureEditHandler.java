@@ -5,6 +5,8 @@ import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.zzx.zzxpicturebackend.manager.websocket.disruptor.PictureEditEvent;
+import com.zzx.zzxpicturebackend.manager.websocket.disruptor.PictureEditEventProducer;
 import com.zzx.zzxpicturebackend.manager.websocket.model.PictureEditActionEnum;
 import com.zzx.zzxpicturebackend.manager.websocket.model.PictureEditMessageTypeEnum;
 import com.zzx.zzxpicturebackend.manager.websocket.model.PictureEditRequestMessage;
@@ -34,6 +36,9 @@ public class PictureEditHandler extends TextWebSocketHandler {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private PictureEditEventProducer pictureEditEventProducer;
 
     /**
      * 每张照片编辑状态存储
@@ -102,25 +107,8 @@ public class PictureEditHandler extends TextWebSocketHandler {
             session.sendMessage(new TextMessage(JSONUtil.toJsonStr(pictureEditResponsesMessage)));
             return;
         }
-        // 根据对应的消息处理方法
-        switch (pictureEditTypeEnum) {
-            case ENTER_EDIT:
-                handleEnterEditMessage(pictureEditRequestMessage, session, user, pictureId);
-                break;
-            case EXIT_EDIT:
-                handleExitEditMessage(pictureEditRequestMessage, session, user, pictureId);
-                break;
-            case EDIT_ACTION:
-                handleEditActionMessage(pictureEditRequestMessage, session, user, pictureId);
-                break;
-            default:
-                // 发送编辑错误信息
-                PictureEditResponsesMessage pictureEditResponsesMessage = new PictureEditResponsesMessage();
-                pictureEditResponsesMessage.setType(PictureEditMessageTypeEnum.ERROR.getValue());
-                pictureEditResponsesMessage.setMessage("消息类型错误");
-                pictureEditResponsesMessage.setUser(userService.getUserVO(user));
-                session.sendMessage(new TextMessage(JSONUtil.toJsonStr(pictureEditResponsesMessage)));
-        }
+        // 生产消息
+        pictureEditEventProducer.publishEvent(pictureEditRequestMessage, session, user, pictureId);
     }
 
     /**
@@ -158,8 +146,8 @@ public class PictureEditHandler extends TextWebSocketHandler {
      * @param pictureId                 当前图片ID
      * @throws IOException 当消息发送或处理出现IO异常时抛出
      */
-    private void handleEnterEditMessage(PictureEditRequestMessage pictureEditRequestMessage, WebSocketSession session,
-                                        User user, Long pictureId) throws IOException {
+    public void handleEnterEditMessage(PictureEditRequestMessage pictureEditRequestMessage, WebSocketSession session,
+                                       User user, Long pictureId) throws IOException {
         // 没有用户正在编辑图片，才能进入编辑
         if (!pictureEditingUsers.containsKey(pictureId)) {
             // 设置当前用户为正在编辑图片的用户
@@ -191,8 +179,8 @@ public class PictureEditHandler extends TextWebSocketHandler {
      * @param pictureId                 当前图片ID
      * @throws IOException 当消息发送或处理出现IO异常时抛出
      */
-    private void handleEditActionMessage(PictureEditRequestMessage pictureEditRequestMessage, WebSocketSession session,
-                                         User user, Long pictureId) throws IOException {
+    public void handleEditActionMessage(PictureEditRequestMessage pictureEditRequestMessage, WebSocketSession session,
+                                        User user, Long pictureId) throws IOException {
         // 校验编辑动作类型
         String editAction = pictureEditRequestMessage.getEditAction();
         PictureEditActionEnum actionEnum = PictureEditActionEnum.getEnumByValue(editAction);
@@ -227,8 +215,8 @@ public class PictureEditHandler extends TextWebSocketHandler {
      * @param pictureId                 当前图片ID
      * @throws IOException 当消息发送或处理出现IO异常时抛出
      */
-    private void handleExitEditMessage(PictureEditRequestMessage pictureEditRequestMessage, WebSocketSession session,
-                                       User user, Long pictureId) throws IOException {
+    public void handleExitEditMessage(PictureEditRequestMessage pictureEditRequestMessage, WebSocketSession session,
+                                      User user, Long pictureId) throws IOException {
         Long editingUserId = pictureEditingUsers.get(pictureId);
         if (editingUserId != null && editingUserId.equals(user.getId())) {
             // 移除编辑用户
