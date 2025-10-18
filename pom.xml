@@ -165,7 +165,7 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>com.zzx.zzxpicturebackend.ZzxPictureBackendApplication</mainClass>
-                    <skip>true</skip>
+                    <!--<skip>true</skip>-->
                 </configuration>
                 <executions>
                     <execution>
