@@ -135,7 +135,7 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
             // 存储用户信息到WebSocket会话
             attributes.put("user", loginUser);
             attributes.put("userId", loginUser.getId());
-            attributes.put("pictureId", pictureId);
+            attributes.put("pictureId",Long.valueOf(pictureId));
             attributes.put("spaceId", spaceId);
 
             log.info("WebSocket握手验证通过: 用户={}, 图片={}, 空间={}",

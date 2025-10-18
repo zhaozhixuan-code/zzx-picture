@@ -1,7 +1,7 @@
 HELP.md
 ### Custom ###
 application-local.yml
-
+application-prod.yml
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
