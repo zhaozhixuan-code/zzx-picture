@@ -1,0 +1,805 @@
+### 1.1 上传图片到公开图库-管理员(成功)
+POST http://localhost:8223/api/picture/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Cookie: {{adminCookie}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="11.png"
+Content-Type: image/png
+
+< 11.png
+--WebAppBoundary
+Content-Disposition: form-data; name="picName"
+
+{{publicPicName}}
+--WebAppBoundary--
+
+### 1.2 上传图片到公开图库-普通用户(成功)
+POST http://localhost:8123/api/picture/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Cookie: {{commonUserCookie}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="11.png"
+Content-Type: image/png
+
+< 11.png
+--WebAppBoundary
+Content-Disposition: form-data; name="picName"
+
+{{publicPicName}}
+--WebAppBoundary--
+
+### 1.3 编辑公开图库图片-管理员(成功)
+POST http://localhost:8123/api/picture/edit
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "id": {{openPictureId}},
+  "name": "{{editedName}}"
+}
+
+### 1.4 编辑公开图库图片-普通用户(失败)
+POST http://localhost:8123/api/picture/edit
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "id": {{openPictureId}},
+  "name": "{{editedName}}"
+}
+
+### 1.5 上传图片到私有空间-管理员(成功)
+POST http://localhost:8123/api/picture/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Cookie: {{adminCookie}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="11.png"
+Content-Type: image/png
+
+< 11.png
+--WebAppBoundary
+Content-Disposition: form-data; name="picName"
+
+{{privatePicName}}
+--WebAppBoundary
+Content-Disposition: form-data; name="spaceId"
+
+{{privateSpaceId}}
+--WebAppBoundary--
+
+### 1.6 上传图片到私有空间-空间创建人(成功)
+POST http://localhost:8123/api/picture/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Cookie: {{spaceCreatorCookie}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="11.png"
+Content-Type: image/png
+
+< 11.png
+--WebAppBoundary
+Content-Disposition: form-data; name="picName"
+
+{{privatePicName}}
+--WebAppBoundary
+Content-Disposition: form-data; name="spaceId"
+
+{{privateSpaceId}}
+--WebAppBoundary--
+
+### 1.7 上传图片到私有空间-非空间创建人(失败)
+POST http://localhost:8123/api/picture/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Cookie: {{commonUserCookie}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="11.png"
+Content-Type: image/png
+
+< 11.png
+--WebAppBoundary
+Content-Disposition: form-data; name="picName"
+
+{{privatePicName}}
+--WebAppBoundary
+Content-Disposition: form-data; name="spaceId"
+
+{{privateSpaceId}}
+--WebAppBoundary--
+
+### 1.8 编辑私有空间图片-管理员(成功)
+POST http://localhost:8123/api/picture/edit
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "id": {{privatePictureId}},
+  "name": "{{editedName}}"
+}
+
+### 1.9 编辑私有空间图片-空间创建人(成功)
+POST http://localhost:8123/api/picture/edit
+Content-Type: application/json
+Cookie: {{spaceCreatorCookie}}
+
+{
+  "id": {{privatePictureId}},
+  "name": "{{editedName}}"
+}
+
+### 1.10 编辑私有空间图片-非空间创建人(失败)
+POST http://localhost:8123/api/picture/edit
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "id": {{privatePictureId}},
+  "name": "{{editedName}}"
+}
+
+### 1.11 上传图片到企业空间-管理员(成功)
+POST http://localhost:8123/api/picture/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Cookie: {{adminCookie}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="11.png"
+Content-Type: image/png
+
+< 11.png
+--WebAppBoundary
+Content-Disposition: form-data; name="picName"
+
+{{teamPicName}}
+--WebAppBoundary
+Content-Disposition: form-data; name="spaceId"
+
+{{teamSpaceId}}
+--WebAppBoundary--
+
+### 1.12 上传图片到企业空间-空间创建人(成功)
+POST http://localhost:8123/api/picture/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Cookie: {{spaceCreatorCookie}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="11.png"
+Content-Type: image/png
+
+< 11.png
+--WebAppBoundary
+Content-Disposition: form-data; name="picName"
+
+{{teamPicName}}
+--WebAppBoundary
+Content-Disposition: form-data; name="spaceId"
+
+{{teamSpaceId}}
+--WebAppBoundary--
+
+### 1.13 上传图片到企业空间-协作者(成功)
+POST http://localhost:8123/api/picture/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Cookie: {{editorCookie}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="11.png"
+Content-Type: image/png
+
+< 11.png
+--WebAppBoundary
+Content-Disposition: form-data; name="picName"
+
+{{teamPicName}}
+--WebAppBoundary
+Content-Disposition: form-data; name="spaceId"
+
+{{teamSpaceId}}
+--WebAppBoundary--
+
+### 1.14 上传图片到企业空间-只读用户(失败)
+POST http://localhost:8123/api/picture/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Cookie: {{viewerCookie}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="11.png"
+Content-Type: image/png
+
+< 11.png
+--WebAppBoundary
+Content-Disposition: form-data; name="picName"
+
+{{teamPicName}}
+--WebAppBoundary
+Content-Disposition: form-data; name="spaceId"
+
+{{teamSpaceId}}
+--WebAppBoundary--
+
+### 1.15 上传图片到企业空间-非空间用户(失败)
+POST http://localhost:8123/api/picture/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Cookie: {{commonUserCookie}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="11.png"
+Content-Type: image/png
+
+< 11.png
+--WebAppBoundary
+Content-Disposition: form-data; name="picName"
+
+{{teamPicName}}
+--WebAppBoundary
+Content-Disposition: form-data; name="spaceId"
+
+{{teamSpaceId}}
+--WebAppBoundary--
+
+### 2.1 URL上传到公开图库-管理员(成功)
+POST http://localhost:8123/api/picture/upload/url
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "fileUrl": "{{needUploadFileUrl}}"
+}
+
+### 2.2 URL上传到公开图库-普通用户(成功)
+POST http://localhost:8123/api/picture/upload/url
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "fileUrl": "{{needUploadFileUrl}}"
+}
+
+### 2.3 URL上传到私有空间-管理员(成功)
+POST http://localhost:8123/api/picture/upload/url
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "fileUrl": "{{needUploadFileUrl}}",
+  "spaceId": {{privateSpaceId}}
+}
+
+### 2.4 URL上传到私有空间-空间创建人(成功)
+POST http://localhost:8123/api/picture/upload/url
+Content-Type: application/json
+Cookie: {{spaceCreatorCookie}}
+
+{
+  "fileUrl": "{{needUploadFileUrl}}",
+  "spaceId": {{privateSpaceId}}
+}
+
+### 2.5 URL上传到私有空间-非空间创建人(失败)
+POST http://localhost:8123/api/picture/upload/url
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "fileUrl": "{{needUploadFileUrl}}",
+  "spaceId": {{privateSpaceId}}
+}
+
+### 2.6 URL上传到企业空间-管理员(成功)
+POST http://localhost:8123/api/picture/upload/url
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "fileUrl": "{{needUploadFileUrl}}",
+  "spaceId": {{teamSpaceId}}
+}
+
+### 2.7 URL上传到企业空间-空间创建人(成功)
+POST http://localhost:8123/api/picture/upload/url
+Content-Type: application/json
+Cookie: {{spaceCreatorCookie}}
+
+{
+  "fileUrl": "{{needUploadFileUrl}}",
+  "spaceId": {{teamSpaceId}}
+}
+
+### 2.8 URL上传到企业空间-协作者(成功)
+POST http://localhost:8123/api/picture/upload/url
+Content-Type: application/json
+Cookie: {{editorCookie}}
+
+{
+  "fileUrl": "{{needUploadFileUrl}}",
+  "spaceId": {{teamSpaceId}}
+}
+
+### 2.9 URL上传到企业空间-只读用户(失败)
+POST http://localhost:8123/api/picture/upload/url
+Content-Type: application/json
+Cookie: {{viewerCookie}}
+
+{
+  "fileUrl": "{{needUploadFileUrl}}",
+  "spaceId": {{teamSpaceId}}
+}
+
+### 2.10 URL上传到企业空间-非空间用户(失败)
+POST http://localhost:8123/api/picture/upload/url
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "fileUrl": "{{needUploadFileUrl}}",
+  "spaceId": {{teamSpaceId}}
+}
+
+
+
+### 3.1 删除公开图库图片-管理员(成功)
+POST http://localhost:8123/api/picture/delete
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "id": {{openPictureId}}
+}
+
+### 3.2 删除公开图库图片-普通用户(失败)
+POST http://localhost:8123/api/picture/delete
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "id": {{openPictureId}}
+}
+
+### 3.3 删除私有空间图片-管理员(成功)
+POST http://localhost:8123/api/picture/delete
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "id": {{privatePictureId}}
+}
+
+### 3.4 删除私有空间图片-空间创建人(成功)
+POST http://localhost:8123/api/picture/delete
+Content-Type: application/json
+Cookie: {{spaceCreatorCookie}}
+
+{
+  "id": {{privatePictureId}}
+}
+
+### 3.5 删除私有空间图片-非空间创建人(失败)
+POST http://localhost:8123/api/picture/delete
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "id": {{privatePictureId}}
+}
+
+### 4.1 获取公开图库图片-管理员(成功)
+GET http://localhost:8123/api/picture/get/vo?id={{openPictureId}}
+Cookie: {{adminCookie}}
+
+### 4.2 获取公开图库图片-普通用户(成功)
+GET http://localhost:8123/api/picture/get/vo?id={{openPictureId}}
+Cookie: {{commonUserCookie}}
+
+### 4.3 获取私有空间图片-管理员(成功)
+GET http://localhost:8123/api/picture/get/vo?id={{privatePictureId}}
+Cookie: {{adminCookie}}
+
+### 4.4 获取私有空间图片-空间创建人(成功)
+GET http://localhost:8123/api/picture/get/vo?id={{privatePictureId}}
+Cookie: {{spaceCreatorCookie}}
+
+### 4.5 获取私有空间图片-非空间创建人(失败)
+GET http://localhost:8123/api/picture/get/vo?id={{privatePictureId}}
+Cookie: {{commonUserCookie}}
+
+### 4.6 获取企业空间图片-管理员(成功)
+GET http://localhost:8123/api/picture/get/vo?id={{teamPictureId}}
+Cookie: {{adminCookie}}
+
+### 4.7 获取企业空间图片-空间创建人(成功)
+GET http://localhost:8123/api/picture/get/vo?id={{teamPictureId}}
+Cookie: {{spaceCreatorCookie}}
+
+### 4.8 获取企业空间图片-协作者(成功)
+GET http://localhost:8123/api/picture/get/vo?id={{teamPictureId}}
+Cookie: {{editorCookie}}
+
+### 4.9 获取企业空间图片-只读用户(成功)
+GET http://localhost:8123/api/picture/get/vo?id={{teamPictureId}}
+Cookie: {{viewerCookie}}
+
+### 4.10 获取企业空间图片-非空间用户(失败)
+GET http://localhost:8123/api/picture/get/vo?id={{teamPictureId}}
+Cookie: {{commonUserCookie}}
+
+### 5.1 获取公开图库列表-管理员(成功,全部)
+POST http://localhost:8123/api/picture/list/page/vo
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "current": {{currentPage}},
+  "pageSize": {{pageSize}},
+  "spaceId": null
+}
+
+### 5.2 获取公开图库列表-普通用户(成功,仅已审核)
+POST http://localhost:8123/api/picture/list/page/vo
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "spaceId": null
+}
+
+### 5.3 获取私有空间列表-管理员(成功)
+POST http://localhost:8123/api/picture/list/page/vo
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "spaceId": {{privateSpaceId}}
+}
+
+### 5.4 获取私有空间列表-空间创建人(成功)
+POST http://localhost:8123/api/picture/list/page/vo
+Content-Type: application/json
+Cookie: {{spaceCreatorCookie}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "spaceId": {{privateSpaceId}}
+}
+
+### 5.5 获取私有空间列表-非空间创建人(失败)
+POST http://localhost:8123/api/picture/list/page/vo
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "spaceId": {{privateSpaceId}}
+}
+
+### 5.6 获取企业空间列表-管理员(成功)
+POST http://localhost:8123/api/picture/list/page/vo
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "current": {{currentPage}},
+  "pageSize": {{pageSize}},
+  "spaceId": {{teamSpaceId}}
+}
+
+### 5.7 获取企业空间列表-空间创建人(成功)
+POST http://localhost:8123/api/picture/list/page/vo
+Content-Type: application/json
+Cookie: {{spaceCreatorCookie}}
+
+{
+  "current": {{currentPage}},
+  "pageSize": {{pageSize}},
+  "spaceId": {{teamSpaceId}}
+}
+
+### 5.8 获取企业空间列表-协作者(成功)
+POST http://localhost:8123/api/picture/list/page/vo
+Content-Type: application/json
+Cookie: {{editorCookie}}
+
+{
+  "current": {{currentPage}},
+  "pageSize": {{pageSize}},
+  "spaceId": {{teamSpaceId}}
+}
+
+### 5.9 获取企业空间列表-只读用户(成功)
+POST http://localhost:8123/api/picture/list/page/vo
+Content-Type: application/json
+Cookie: {{viewerCookie}}
+
+{
+  "current": {{currentPage}},
+  "pageSize": {{pageSize}},
+  "spaceId": {{teamSpaceId}}
+}
+
+### 5.10 获取企业空间列表-非空间用户(失败)
+POST http://localhost:8123/api/picture/list/page/vo
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "current": {{currentPage}},
+  "pageSize": {{pageSize}},
+  "spaceId": {{teamSpaceId}}
+}
+
+### 8.3 颜色搜索-私有空间-管理员(成功)
+POST http://localhost:8123/api/picture/search/color
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "picColor": "{{searchColor}}",
+  "spaceId": {{privateSpaceId}}
+}
+
+### 8.4 颜色搜索-私有空间-空间创建人(成功)
+POST http://localhost:8123/api/picture/search/color
+Content-Type: application/json
+Cookie: {{spaceCreatorCookie}}
+
+{
+  "picColor": "{{searchColor}}",
+  "spaceId": {{privateSpaceId}}
+}
+
+### 8.5 颜色搜索-私有空间-非空间创建人(失败)
+POST http://localhost:8123/api/picture/search/color
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "picColor": "{{searchColor}}",
+  "spaceId": {{privateSpaceId}}
+}
+
+### 8.6 颜色搜索-企业空间-管理员(成功)
+POST http://localhost:8123/api/picture/search/color
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "picColor": "{{searchColor}}",
+  "spaceId": {{teamSpaceId}}
+}
+
+### 8.7 颜色搜索-企业空间-空间创建人(成功)
+POST http://localhost:8123/api/picture/search/color
+Content-Type: application/json
+Cookie: {{spaceCreatorCookie}}
+
+{
+  "picColor": "{{searchColor}}",
+  "spaceId": {{teamSpaceId}}
+}
+
+### 8.8 颜色搜索-企业空间-协作者(成功)
+POST http://localhost:8123/api/picture/search/color
+Content-Type: application/json
+Cookie: {{editorCookie}}
+
+{
+  "picColor": "{{searchColor}}",
+  "spaceId": {{teamSpaceId}}
+}
+
+### 8.9 颜色搜索-企业空间-只读用户(成功)
+POST http://localhost:8123/api/picture/search/color
+Content-Type: application/json
+Cookie: {{viewerCookie}}
+
+{
+  "picColor": "{{searchColor}}",
+  "spaceId": {{teamSpaceId}}
+}
+
+### 8.10 颜色搜索-企业空间-非空间用户(失败)
+POST http://localhost:8123/api/picture/search/color
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "picColor": "{{searchColor}}",
+  "spaceId": {{teamSpaceId}}
+}
+
+### 9.1 创建扩图任务-公开图库-管理员(成功)
+POST http://localhost:8123/api/picture/out_painting/create_task
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "pictureId": {{openPictureId}}
+}
+
+### 9.2 创建扩图任务-公开图库-普通用户(失败)
+POST http://localhost:8123/api/picture/out_painting/create_task
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "pictureId": {{openPictureId}}
+}
+
+### 9.3 创建扩图任务-私有空间-管理员(成功)
+POST http://localhost:8123/api/picture/out_painting/create_task
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "pictureId": {{privatePictureId}}
+}
+
+### 9.4 创建扩图任务-私有空间-空间创建人(成功)
+POST http://localhost:8123/api/picture/out_painting/create_task
+Content-Type: application/json
+Cookie: {{spaceCreatorCookie}}
+
+{
+  "pictureId": {{privatePictureId}}
+}
+
+### 9.5 创建扩图任务-私有空间-非空间创建人(失败)
+POST http://localhost:8123/api/picture/out_painting/create_task
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "pictureId": {{privatePictureId}}
+}
+
+### 9.6 创建扩图任务-企业空间-管理员(成功)
+POST http://localhost:8123/api/picture/out_painting/create_task
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "pictureId": {{teamPictureId}}
+}
+
+### 9.7 创建扩图任务-企业空间-空间创建人(成功)
+POST http://localhost:8123/api/picture/out_painting/create_task
+Content-Type: application/json
+Cookie: {{spaceCreatorCookie}}
+
+{
+  "pictureId": {{teamPictureId}}
+}
+
+### 9.8 创建扩图任务-企业空间-协作者(成功)
+POST http://localhost:8123/api/picture/out_painting/create_task
+Content-Type: application/json
+Cookie: {{editorCookie}}
+
+{
+  "pictureId": {{teamPictureId}}
+}
+
+### 9.9 创建扩图任务-企业空间-只读用户(成功)
+POST http://localhost:8123/api/picture/out_painting/create_task
+Content-Type: application/json
+Cookie: {{viewerCookie}}
+
+{
+  "pictureId": {{teamPictureId}}
+}
+
+### 9.10 创建扩图任务-企业空间-非空间用户(失败)
+POST http://localhost:8123/api/picture/out_painting/create_task
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "pictureId": {{teamPictureId}}
+}
+
+
+
+### 10.3 批量编辑私有空间图片-管理员(成功)
+POST http://localhost:8123/api/picture/edit/batch
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "pictureIdList": [{{privatePictureId}}],
+  "spaceId": {{privateSpaceId}},
+  "nameRule": "{{batchNameRulePrivate}}",
+  "tags": [{{batchTagsPrivate}}]
+}
+
+### 10.4 批量编辑私有空间图片-空间创建人(成功)
+POST http://localhost:8123/api/picture/edit/batch
+Content-Type: application/json
+Cookie: {{spaceCreatorCookie}}
+
+{
+  "pictureIdList": [{{privatePictureId}}],
+  "spaceId": {{privateSpaceId}},
+  "nameRule": "{{batchNameRulePrivate}}",
+  "tags": [{{batchTagsPrivate}}]
+}
+
+### 10.5 批量编辑私有空间图片-非空间创建人(失败)
+POST http://localhost:8123/api/picture/edit/batch
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "pictureIdList": [{{privatePictureId}}],
+  "spaceId": {{privateSpaceId}},
+  "nameRule": "{{batchNameRulePrivate}}",
+  "tags": [{{batchTagsPrivate}}]
+}
+
+### 10.6 批量编辑企业空间图片-管理员(失败)
+POST http://localhost:8123/api/picture/edit/batch
+Content-Type: application/json
+Cookie: {{adminCookie}}
+
+{
+  "pictureIdList": [{{teamPictureId}}],
+  "spaceId": {{teamSpaceId}},
+  "nameRule": "{{batchNameRulePrivate}}",
+  "tags": [{{batchTagsTeam}}]
+}
+
+### 10.7 批量编辑企业空间图片-空间创建人(成功)
+POST http://localhost:8123/api/picture/edit/batch
+Content-Type: application/json
+Cookie: {{spaceCreatorCookie}}
+
+{
+  "pictureIdList": [{{teamPictureId}}],
+  "name": "{{batchNameRuleTeam}}",
+  "tags": [{{batchTagsTeam}}]
+}
+
+### 10.8 批量编辑企业空间图片-协作者(成功)
+POST http://localhost:8123/api/picture/edit/batch
+Content-Type: application/json
+Cookie: {{editorCookie}}
+
+{
+  "pictureIdList": [{{teamPictureId}}],
+  "spaceId": {{teamSpaceId}},
+  "nameRule": "{{batchNameRulePrivate}}",
+  "tags": [{{batchTagsTeam}}]
+}
+
+### 10.9 批量编辑企业空间图片-只读用户(失败)
+POST http://localhost:8123/api/picture/edit/batch
+Content-Type: application/json
+Cookie: {{viewerCookie}}
+
+{
+  "pictureIdList": [{{teamPictureId}}],
+  "spaceId": {{teamSpaceId}},
+  "nameRule": "{{batchNameRulePrivate}}",
+  "tags": [{{batchTagsTeam}}]
+}
+
+### 10.10 批量编辑企业空间图片-非空间用户(失败)
+POST http://localhost:8123/api/picture/edit/batch
+Content-Type: application/json
+Cookie: {{commonUserCookie}}
+
+{
+  "pictureIdList": [{{teamPictureId}}],
+  "spaceId": {{teamSpaceId}},
+  "nameRule": "{{batchNameRulePrivate}}",
+  "tags": [{{batchTagsTeam}}]
+}
+
+

@@ -1,0 +1,106 @@
+server:
+  port: 8223
+  servlet:
+    context-path: /api
+    # cookie 30 天过期
+    session:
+      cookie:
+        max-age: 2592000
+spring:
+  application:
+    name: zzx-picture-backend-ddd
+  profiles:
+    active: local
+  # MySQL配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${picture.mysql.host}:${picture.mysql.port}/${picture.mysql.database}
+    username: ${picture.mysql.username}
+    password: ${picture.mysql.password}
+  # Redis配置
+  redis:
+    host: ${picture.redis.host}
+    port: ${picture.redis.port}
+    database: ${picture.redis.database}
+    password: ${picture.redis.password}
+    timeout: 5000
+  # session 配置
+  session:
+    store-type: redis
+    # session 30 天过期 单位为秒
+    timeout: 2592000
+  # 开放更大的文件上传体积
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+  # 使用 shardingSphere 空间图片分表
+  shardingsphere:
+    datasource:
+      names: zzx_picture  # 数据库名称
+      zzx_picture: # 数据源名称
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://${picture.mysql.host}:${picture.mysql.port}/${picture.mysql.database}
+        username: ${picture.mysql.username}
+        password: ${picture.mysql.password}
+    rules:
+      sharding:
+        tables:
+          picture: # 配置 picture 表的分片规则
+            actual-data-nodes: zzx_picture.picture  # 动态分表
+            table-strategy:
+              standard:
+                sharding-column: spaceId # 分表字段
+                sharding-algorithm-name: picture_sharding_algorithm  # 使用自定义分片算法
+        sharding-algorithms:
+          picture_sharding_algorithm:
+            type: CLASS_BASED
+            props:
+              strategy: standard # 标准分片
+              algorithmClassName: com.zzx.zzxpicturebackend.manager.sharding.PictureShardingAlgorithm # 自定义分片算法
+    props:
+      sql-show: true # 显示分片后的实际 SQL 语句，用于调试
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false    # MyBatis 下划线转驼峰
+    # 仅在开发环境开启日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    # 启用 SQL 运行器
+    enable-sql-runner: true
+    db-config:
+      logic-delete-field: is_delete  # 全局逻辑删除
+      logic-delete-value: 1    # 逻辑删除值（默认为1）
+      logic-not-delete-value: 0  # 逻辑未删除值（默认为0）
+  mapper-locations: classpath:/mapper/**.xml
+
+# 接口文档
+knife4j:
+  enable: true
+  openapi:
+    title: 接口文档
+    email: 53525430x@gmail.com
+    concat: 赵志轩
+    version: 1.0
+    group:
+      default:
+        #        group-name: default
+        api-rule: package
+        api-rule-resources:
+          - com.zzx.zzxpicturebackend.controller
+
+# 腾讯云对象存储配置
+cos:
+  client:
+    host: ${picture.cos.client.host}
+    secret-id: ${picture.cos.client.secret-id}
+    secret-key: ${picture.cos.client.secret-key}
+    bucket: ${picture.cos.client.bucket}
+    region: ${picture.cos.client.region}
+
+# 阿里云 AI 配置
+aliyun:
+  api-key: ${picture.aliyun.api-key}
+  image-model: ${picture.aliyun.image-model}
