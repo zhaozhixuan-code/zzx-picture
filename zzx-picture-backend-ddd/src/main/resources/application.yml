@@ -58,7 +58,7 @@ spring:
             type: CLASS_BASED
             props:
               strategy: standard # 标准分片
-              algorithmClassName: com.zzx.zzxpicturebackend.manager.sharding.PictureShardingAlgorithm # 自定义分片算法
+              algorithmClassName: com.zzx.zzxpicture.shared.sharding.PictureShardingAlgorithm # 自定义分片算法
     props:
       sql-show: true # 显示分片后的实际 SQL 语句，用于调试
 
@@ -89,7 +89,7 @@ knife4j:
         #        group-name: default
         api-rule: package
         api-rule-resources:
-          - com.zzx.zzxpicturebackend.controller
+          - com.zzx.zzxpicture.interfaces.controller
 
 # 腾讯云对象存储配置
 cos:

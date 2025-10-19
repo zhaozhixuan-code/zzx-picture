@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zzx.zzxpicturebackend.mapper.SpaceUserMapper">
+<mapper namespace="com.zzx.zzxpicture.infrastructure.mapper.SpaceUserMapper">
 
-    <resultMap id="BaseResultMap" type="com.zzx.zzxpicturebackend.model.po.SpaceUser">
+    <resultMap id="BaseResultMap" type="com.zzx.zzxpicture.domain.space.entity.SpaceUser">
         <id property="id" column="id"/>
         <result property="spaceId" column="spaceId"/>
         <result property="userId" column="userId"/>
