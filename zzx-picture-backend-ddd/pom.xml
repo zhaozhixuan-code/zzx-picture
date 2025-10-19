@@ -164,7 +164,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.zzx.zzxpicture.infrastructure.ZzxPictureBackendApplication</mainClass>
+                    <mainClass>com.zzx.zzxpicture.ZzxPictureBackendApplication</mainClass>
                     <!--<skip>true</skip>-->
                 </configuration>
                 <executions>

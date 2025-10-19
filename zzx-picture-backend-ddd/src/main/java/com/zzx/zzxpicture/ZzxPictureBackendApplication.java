@@ -1,4 +1,4 @@
-package com.zzx.zzxpicture.infrastructure;
+package com.zzx.zzxpicture;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
