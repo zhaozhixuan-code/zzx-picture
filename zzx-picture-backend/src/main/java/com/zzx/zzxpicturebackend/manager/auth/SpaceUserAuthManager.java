@@ -15,7 +15,7 @@ import com.zzx.zzxpicturebackend.service.SpaceUserService;
 import com.zzx.zzxpicturebackend.service.UserService;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.Resource;
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

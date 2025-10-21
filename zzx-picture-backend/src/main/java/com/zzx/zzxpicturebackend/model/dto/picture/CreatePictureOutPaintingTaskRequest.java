@@ -3,7 +3,7 @@ package com.zzx.zzxpicturebackend.model.dto.picture;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
 import lombok.Data;
 
-import java.io.Serial;
+
 import java.io.Serializable;
 
 @Data
@@ -19,6 +19,6 @@ public class CreatePictureOutPaintingTaskRequest implements Serializable {
      */
     private CreateOutPaintingTaskRequest.Parameters parameters;
 
-    @Serial
+
     private static final long serialVersionUID = 1L;
 }

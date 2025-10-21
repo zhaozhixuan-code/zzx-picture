@@ -20,8 +20,8 @@ import org.apache.shardingsphere.sharding.route.strategy.ShardingStrategy;
 import org.apache.shardingsphere.sharding.rule.ShardingRule;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resource;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Collections;

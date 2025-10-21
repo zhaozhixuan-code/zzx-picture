@@ -8,8 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
-import jakarta.annotation.PreDestroy;
-import jakarta.annotation.Resource;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 
 /**
  * 图片编辑事件生产者

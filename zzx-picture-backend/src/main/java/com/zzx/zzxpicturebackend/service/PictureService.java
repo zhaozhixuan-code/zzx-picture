@@ -14,7 +14,7 @@ import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.PictureVO;
 import com.zzx.zzxpicturebackend.model.vo.analyze.SpaceCategoryAnalyzeResponse;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -162,6 +162,11 @@ public interface PictureService extends IService<Picture> {
     GetOutPaintingTaskResponse getPictureOutPaintingTask(String taskId);
 
 
+    /**
+     * 文本转图片
+     * @param request
+     * @return
+     */
     TextToImageResponse getTextToImage(TextToImageRequest request);
 
     /**

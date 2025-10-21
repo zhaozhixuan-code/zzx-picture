@@ -196,6 +196,21 @@ export async function listPictureTagCategoryUsingGet(options?: { [key: string]: 
   })
 }
 
+/** createTextToImage POST /api/picture/text_to_image */
+export async function createTextToImageUsingPost(
+  body: API.PictureTextToImageRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseTextToImageResponse_>('/api/picture/text_to_image', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** updatePicture POST /api/picture/update */
 export async function updatePictureUsingPost(
   body: API.PictureUpdateRequest,

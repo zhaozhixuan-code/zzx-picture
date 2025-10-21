@@ -5,7 +5,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-import jakarta.annotation.Resource;
+import javax.annotation.Resource;
 
 @Configuration
 @EnableWebSocket

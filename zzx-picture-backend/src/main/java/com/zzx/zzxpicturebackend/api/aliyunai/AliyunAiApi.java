@@ -133,7 +133,7 @@ public class AliyunAiApi {
         // 校验参数
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         // 获取用户输入
-        String message = request.getInput().getMessages().getFirst().getContent().getFirst().getText();
+        String message = request.getInput().getMessages().get(0).getContent().get(0).getText();
         // 构造请求参数
         MultiModalConversation conversation = new MultiModalConversation();
         MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
-import jakarta.annotation.Resource;
+import javax.annotation.Resource;
 
 /**
  * disruptor配置类

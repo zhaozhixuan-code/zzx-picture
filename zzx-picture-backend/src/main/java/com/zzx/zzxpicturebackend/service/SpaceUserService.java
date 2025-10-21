@@ -10,7 +10,7 @@ import com.zzx.zzxpicturebackend.model.po.SpaceUser;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zzx.zzxpicturebackend.model.vo.SpaceUserVO;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**

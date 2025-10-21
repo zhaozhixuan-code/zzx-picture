@@ -17,7 +17,7 @@ import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.model.vo.UploadPictureResult;
 import lombok.extern.slf4j.Slf4j;
 
-import jakarta.annotation.Resource;
+import javax.annotation.Resource;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;

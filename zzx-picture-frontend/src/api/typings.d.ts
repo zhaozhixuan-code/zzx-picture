@@ -161,6 +161,12 @@ declare namespace API {
     message?: string
   }
 
+  type BaseResponseTextToImageResponse_ = {
+    code?: number
+    data?: TextToImageResponse
+    message?: string
+  }
+
   type BaseResponseUser_ = {
     code?: number
     data?: User
@@ -171,6 +177,15 @@ declare namespace API {
     code?: number
     data?: UserVO
     message?: string
+  }
+
+  type Choice = {
+    finishReason?: string
+    message?: Message
+  }
+
+  type Content = {
+    image?: string
   }
 
   type CreateOutPaintingTaskResponse = {
@@ -246,6 +261,11 @@ declare namespace API {
     userRole?: string
   }
 
+  type Message = {
+    content?: Content[]
+    role?: string
+  }
+
   type Output = {
     taskId?: string
     taskStatus?: string
@@ -261,6 +281,11 @@ declare namespace API {
     taskId?: string
     taskMetrics?: TaskMetrics
     taskStatus?: string
+  }
+
+  type Output2 = {
+    choices?: Choice[]
+    taskMetric?: TaskMetric
   }
 
   type PagePicture_ = {
@@ -396,6 +421,10 @@ declare namespace API {
   type PictureTagCategory = {
     categoryList?: string[]
     tagList?: string[]
+  }
+
+  type PictureTextToImageRequest = {
+    userPrompt?: string
   }
 
   type PictureUpdateRequest = {
@@ -621,10 +650,24 @@ declare namespace API {
     userVO?: UserVO
   }
 
+  type TaskMetric = {
+    failed?: number
+    succeeded?: number
+    total?: number
+  }
+
   type TaskMetrics = {
     failed?: number
     succeeded?: number
     total?: number
+  }
+
+  type TextToImageResponse = {
+    code?: string
+    message?: string
+    output?: Output2
+    requestId?: string
+    usage?: Usage
   }
 
   type uploadPictureUsingPOSTParams = {
@@ -634,6 +677,12 @@ declare namespace API {
     picName?: string
     spaceId?: number
     tags?: string[]
+  }
+
+  type Usage = {
+    height?: number
+    imageCount?: number
+    width?: number
   }
 
   type User = {

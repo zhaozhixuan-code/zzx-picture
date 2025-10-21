@@ -3,49 +3,84 @@
     <!-- 空间信息 -->
     <a-flex justify="space-between">
       <h2>{{ space.spaceName }}（{{ SPACE_TYPE_MAP[space.spaceType] }}）</h2>
-      <a-space size="middle">
-        <a-button
-          v-if="canUploadPicture"
-          type="primary"
-          :href="`/add_picture?spaceId=${id}`"
-          target="_blank"
-        >
-          + 创建图片
-        </a-button>
-
-        <a-button
-          v-if="canManageSpaceUser"
-          type="primary"
-          ghost
-          :icon="h(TeamOutlined)"
-          :href="`/spaceUserManage/${id}`"
-          target="_blank"
-        >
-          成员管理
-        </a-button>
-        <a-button
-          v-if="canManageSpaceUser"
-          type="primary"
-          ghost
-          :icon="h(BarChartOutlined)"
-          :href="`/space_analyze?spaceId=${id}`"
-        >
-          空间分析
-        </a-button>
-
-        <a-button v-if="canEditPicture" :icon="h(EditOutlined)" @click="doBatchEdit"> 批量编辑</a-button>
-
-        <a-tooltip
-          :title="`占用空间 ${formatSize(space.totalSize)} / ${formatSize(space.maxSize)}`"
-        >
-          <a-progress
-            type="circle"
-            :percent="((space.totalSize * 100) / space.maxSize).toFixed(1)"
-            :size="42"
-          />
-        </a-tooltip>
-      </a-space>
     </a-flex>
+    <div style="margin-bottom: 16px" />
+    <a-form layout="inline" class="custom-button-form">
+      <a-form-item>
+        <a-space>
+          <a-button
+            v-if="canUploadPicture"
+            type="primary"
+            :href="`/add_picture?spaceId=${id}`"
+            target="_blank"
+          >
+            + 创建图片
+          </a-button>
+        </a-space>
+      </a-form-item>
+      <a-form-item>
+        <a-space>
+          <!-- 新增AI文生图按钮 -->
+<!--          <a-button-->
+<!--            v-if="canUploadPicture"-->
+<!--            type="primary"-->
+<!--            :icon="h(PictureOutlined)"-->
+<!--            @click="openTextToImageModal"-->
+<!--          >-->
+<!--            AI 文生图-->
+<!--          </a-button>-->
+          <div class="ai-gen-image-wrapper">
+            <AiGenImage/>
+          </div>
+        </a-space>
+      </a-form-item>
+      <a-form-item>
+        <a-space>
+          <a-button
+            v-if="canManageSpaceUser"
+            type="primary"
+            ghost
+            :icon="h(TeamOutlined)"
+            :href="`/spaceUserManage/${id}`"
+            target="_blank"
+          >
+            成员管理
+          </a-button>
+        </a-space>
+      </a-form-item>
+      <a-form-item>
+        <a-space>
+          <a-button
+            v-if="canManageSpaceUser"
+            type="primary"
+            ghost
+            :icon="h(BarChartOutlined)"
+            :href="`/space_analyze?spaceId=${id}`"
+          >
+            空间分析
+          </a-button>
+        </a-space>
+      </a-form-item>
+      <a-form-item>
+        <a-space>
+          <a-button v-if="canEditPicture" :icon="h(EditOutlined)" @click="doBatchEdit"> 批量编辑</a-button>
+        </a-space>
+      </a-form-item>
+      <a-form-item>
+        <a-space>
+          <a-tooltip
+            :title="`占用空间 ${formatSize(space.totalSize)} / ${formatSize(space.maxSize)}`"
+          >
+            <a-progress
+              type="circle"
+              :percent="((space.totalSize * 100) / space.maxSize).toFixed(1)"
+              :size="42"
+            />
+          </a-tooltip>
+        </a-space>
+      </a-form-item>
+    </a-form>
+
     <div style="margin-bottom: 16px" />
     <!-- 搜索表单 -->
     <PictureSearchForm :onSearch="onSearch" />
@@ -88,7 +123,7 @@ import {
   deletePictureUsingPost,
   getPictureVoByIdUsingGet,
   listPictureVoByPageUsingPost,
-  searchPictureByColorUsingPost,
+  searchPictureByColorUsingPost
 } from '@/api/pictureController.ts'
 import { onMounted, ref, h, computed, reactive, watch } from 'vue'
 import { message } from 'ant-design-vue'
@@ -99,6 +134,7 @@ import {
   DownloadOutlined,
   BarChartOutlined,
   TeamOutlined,
+  PictureOutlined
 } from '@ant-design/icons-vue'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import router from '@/router'
@@ -109,6 +145,7 @@ import { ColorPicker } from 'vue3-colorpicker'
 import 'vue3-colorpicker/style.css'
 import BatchEditPictureModal from '@/components/BatchEditPictureModal.vue'
 import { SPACE_PERMISSION_ENUM, SPACE_TYPE_MAP } from '../constants/space.ts'
+import AiGenImage from '@/components/AiGenImage.vue'
 
 const props = defineProps<{
   id: string | number
@@ -147,7 +184,7 @@ const doBatchEdit = () => {
 const fetchSpaceDetail = async () => {
   try {
     const res = await getSpaceVoByIdUsingGet({
-      id: props.id,
+      id: props.id
     })
     if (res.data.code === 0 && res.data.data) {
       space.value = res.data.data
@@ -163,7 +200,7 @@ const fetchSpaceDetail = async () => {
 const onColorChange = async (color: string) => {
   const res = await searchPictureByColorUsingPost({
     picColor: color,
-    spaceId: props.id,
+    spaceId: props.id
   })
   if (res.data.code === 0 && res.data.data) {
     const data = res.data.data ?? []
@@ -187,7 +224,7 @@ const searchParams = ref<API.PictureQueryRequest>({
   current: 1,
   pageSize: 12,
   sortField: 'createTime',
-  sortOrder: 'descend',
+  sortOrder: 'descend'
 })
 
 // 分页参数
@@ -202,7 +239,7 @@ const onSearch = (newSearchParams: API.PictureQueryRequest) => {
   searchParams.value = {
     ...searchParams.value,
     ...newSearchParams,
-    current: 1,
+    current: 1
   }
   fetchData()
 }
@@ -213,7 +250,7 @@ const fetchData = async () => {
   // 转换搜索参数
   const params = {
     spaceId: props.id,
-    ...searchParams.value,
+    ...searchParams.value
   }
   const res = await listPictureVoByPageUsingPost(params)
   if (res.data.data) {
@@ -260,7 +297,7 @@ watch(
   (newSpaceId) => {
     fetchSpaceDetail()
     fetchData()
-  },
+  }
 )
 </script>
 
@@ -277,5 +314,23 @@ watch(
 
 .info-card :deep(*) {
   font-size: 16px;
+}
+/* 针对垂直排列状态的表单项设置间距 */
+.custom-button-form {
+  /* 覆盖 inline 布局在垂直排列时的默认样式 */
+  &.ant-form-inline {
+    /* 响应式断点：当屏幕宽度小于 768px 时垂直排列 */
+    @media (max-width: 768px) {
+      /* 调整每个表单项的底部间距 */
+      .ant-form-item {
+        margin-bottom: 16px !important; /* 按钮之间的垂直间隙，可根据需要调整 */
+      }
+
+      /* 最后一个表单项移除底部间距，避免多余空白 */
+      .ant-form-item:last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+  }
 }
 </style>
