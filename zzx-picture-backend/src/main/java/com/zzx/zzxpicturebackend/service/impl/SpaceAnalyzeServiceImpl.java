@@ -21,7 +21,7 @@ import com.zzx.zzxpicturebackend.service.SpaceService;
 import com.zzx.zzxpicturebackend.service.UserService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

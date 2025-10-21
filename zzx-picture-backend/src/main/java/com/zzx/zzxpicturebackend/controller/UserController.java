@@ -18,8 +18,8 @@ import com.zzx.zzxpicturebackend.service.UserService;
 import com.zzx.zzxpicturebackend.utils.BaseContext;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController

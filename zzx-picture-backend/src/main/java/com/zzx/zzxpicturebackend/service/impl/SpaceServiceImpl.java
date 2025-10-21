@@ -35,8 +35,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -66,9 +66,9 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
     @Resource
     private SpaceUserAuthManager spaceUserAuthManager;
 
-    @Resource
-    @Lazy
-    private DynamicShardingManager dynamicShardingManager;
+    // @Resource
+    // @Lazy
+    // private DynamicShardingManager dynamicShardingManager;
 
     /**
      * 添加空间（个人空间 - 团队空间）
@@ -129,7 +129,7 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
                     ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "添加空间成员失败");
                 }
                 // 动态创建分表（仅对团队空间生效）
-                dynamicShardingManager.createSpacePictureTable(space);
+                // dynamicShardingManager.createSpacePictureTable(space);
                 return space.getId();
             });
             return newSpaceId;

@@ -1,11 +1,14 @@
 package com.zzx.zzxpicturebackend.controller;
 
 
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzx.zzxpicturebackend.annotation.AuthCheck;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.TextToImageRequest;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.TextToImageResponse;
 import com.zzx.zzxpicturebackend.api.imagesearch.ImageSearchApiFacade;
 import com.zzx.zzxpicturebackend.api.imagesearch.model.ImageSearchResult;
 import com.zzx.zzxpicturebackend.common.DeleteRequest;
@@ -27,8 +30,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -309,7 +314,7 @@ public class PictureController {
     @PostMapping("/out_patting/create_task")
     @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.PICTURE_EDIT)
     public BaseResponse<CreateOutPaintingTaskResponse> createPictureOutPaintingTask(@RequestBody CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest,
-                                                                             HttpServletRequest httpServletRequest) {
+                                                                                    HttpServletRequest httpServletRequest) {
         // 校验参数
         ThrowUtils.throwIf(createPictureOutPaintingTaskRequest == null ||
                 createPictureOutPaintingTaskRequest.getPictureId() == null, ErrorCode.PARAMS_ERROR);
@@ -328,11 +333,26 @@ public class PictureController {
      * @return
      */
     @GetMapping("/out_painting/get_task")
-    public BaseResponse<GetOutPaintingTaskResponse> getPictureOutPaintingTask(String taskId){
+    public BaseResponse<GetOutPaintingTaskResponse> getPictureOutPaintingTask(String taskId) {
         // 校验参数
         ThrowUtils.throwIf(StrUtil.isBlank(taskId), ErrorCode.PARAMS_ERROR);
 
         GetOutPaintingTaskResponse response = pictureService.getPictureOutPaintingTask(taskId);
+        return ResultUtils.success(response);
+    }
+
+    /**
+     * AI 文生图片
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/text_to_image")
+    public BaseResponse<TextToImageResponse> createTextToImage(@RequestBody PictureTextToImageRequest request) {
+        ThrowUtils.throwIf(ObjUtil.isNull(request), ErrorCode.PARAMS_ERROR);
+        String userPrompt = request.getUserPrompt();
+        TextToImageRequest textToImageRequest = TextToImageRequest.create(userPrompt);
+        TextToImageResponse response = pictureService.getTextToImage(textToImageRequest);
         return ResultUtils.success(response);
     }
 

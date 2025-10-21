@@ -1,12 +1,19 @@
 package com.zzx.zzxpicturebackend.api.aliyunai;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
-import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
-import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
-import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
+import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversation;
+import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationParam;
+import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationResult;
+import com.alibaba.dashscope.common.MultiModalMessage;
+import com.alibaba.dashscope.common.Role;
+import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.alibaba.dashscope.exception.UploadFileException;
+import com.alibaba.dashscope.utils.JsonUtils;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.*;
 import com.zzx.zzxpicturebackend.exception.BusinessException;
 import com.zzx.zzxpicturebackend.exception.ErrorCode;
 import com.zzx.zzxpicturebackend.exception.ThrowUtils;
@@ -14,8 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
- * 阿里云图像扩图接口
+ * 阿里云相关接口
+ * 目前包含 AI 扩图、文生图
  */
 @Slf4j
 @Component
@@ -27,12 +39,19 @@ public class AliyunAiApi {
     @Value("${aliyun.image-model}")
     private String model;
 
+    // 文生图模型
+    @Value("${aliyun.text-to-image-model}")
+    private String textToImageModel;
 
-    // 创建任务地址
+
+    // 创建 AI 扩图任务地址
     private static final String CREATE_TASK_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/image2image/out-painting";
 
-    // 查询任务地址
+    // 查询 AI 扩图任务地址
     private static final String GET_TASK_URL = "https://dashscope.aliyuncs.com/api/v1/tasks/%s";
+
+    // 文生图接口地址
+    private static final String TEXT_TO_IMAGE_URL = "https://dashscope.aliyuncs.com/api/v1";
 
 
     /**
@@ -103,4 +122,48 @@ public class AliyunAiApi {
             return response;
         }
     }
+
+    /**
+     * 文生图
+     *
+     * @param request
+     * @return
+     */
+    public TextToImageResponse getTextToImage(TextToImageRequest request) {
+        // 校验参数
+        ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
+        // 获取用户输入
+        String message = request.getInput().getMessages().getFirst().getContent().getFirst().getText();
+        // 构造请求参数
+        MultiModalConversation conversation = new MultiModalConversation();
+        MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
+                .content(Arrays.asList(
+                        Collections.singletonMap("text", message)
+                )).build();
+
+        MultiModalConversationParam param = MultiModalConversationParam.builder()
+                .apiKey(apiKey)
+                .model(textToImageModel)                          // 设置文生图模型
+                .messages(Collections.singletonList(userMessage)) // 设置用户输入
+                .build();
+        // 发起请求
+        MultiModalConversationResult result = null;
+        try {
+            result = conversation.call(param);
+            // log.info("response:{}", result);
+        } catch (NoApiKeyException e) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "apiKey错误");
+        } catch (UploadFileException e) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "阿里云服务器上传文件失败");
+        }
+        TextToImageResponse response = BeanUtil.toBean(result, TextToImageResponse.class);
+        // 处理响应结果
+        String errorCode = response.getCode();
+        if (StrUtil.isNotBlank(errorCode)) {
+            String errorMessage = response.getMessage();
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "错误代码为：" + errorCode + "错误信息为：" + errorMessage);
+        }
+        return response;
+    }
+
 }

@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
 import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.TextToImageRequest;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.TextToImageResponse;
 import com.zzx.zzxpicturebackend.model.dto.analyze.SpaceSizeAnalyzeRequest;
 import com.zzx.zzxpicturebackend.model.dto.picture.*;
 import com.zzx.zzxpicturebackend.model.po.Picture;
@@ -12,7 +14,7 @@ import com.zzx.zzxpicturebackend.model.po.User;
 import com.zzx.zzxpicturebackend.model.vo.PictureVO;
 import com.zzx.zzxpicturebackend.model.vo.analyze.SpaceCategoryAnalyzeResponse;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -159,6 +161,8 @@ public interface PictureService extends IService<Picture> {
      */
     GetOutPaintingTaskResponse getPictureOutPaintingTask(String taskId);
 
+
+    TextToImageResponse getTextToImage(TextToImageRequest request);
 
     /**
      * 获取图片分类统计

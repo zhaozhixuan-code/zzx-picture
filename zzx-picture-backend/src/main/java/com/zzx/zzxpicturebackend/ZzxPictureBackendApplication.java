@@ -6,7 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
-@SpringBootApplication()
+@SpringBootApplication(/* exclude = {ShardingSphereAutoConfiguration.class} */)
 @MapperScan("com.zzx.zzxpicturebackend.mapper") // mp扫描包
 @EnableAspectJAutoProxy(exposeProxy = true)
 public class ZzxPictureBackendApplication {

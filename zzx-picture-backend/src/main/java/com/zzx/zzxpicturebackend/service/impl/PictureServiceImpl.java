@@ -6,16 +6,14 @@ import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.zzx.zzxpicturebackend.api.aliyunai.AliyunAiApi;
-import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
-import com.zzx.zzxpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
-import com.zzx.zzxpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.*;
+import com.zzx.zzxpicturebackend.api.aliyunai.model.TextToImageRequest;
 import com.zzx.zzxpicturebackend.manager.auth.SpaceUserAuthManager;
 import com.zzx.zzxpicturebackend.manager.auth.StpKit;
 import com.zzx.zzxpicturebackend.constant.RedisConstant;
@@ -51,8 +49,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.DigestUtils;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.awt.*;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -915,6 +914,20 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         GetOutPaintingTaskResponse outPaintingTask = aliyunAiApi.getOutPaintingTask(taskId);
         return outPaintingTask;
     }
+
+
+    /**
+     * 获取文生图
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public TextToImageResponse getTextToImage(TextToImageRequest request) {
+        TextToImageResponse textToImage = aliyunAiApi.getTextToImage(request);
+        return textToImage;
+    }
+
 
     /**
      * 分类统计
