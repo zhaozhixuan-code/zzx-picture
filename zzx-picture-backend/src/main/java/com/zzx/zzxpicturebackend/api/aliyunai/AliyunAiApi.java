@@ -110,7 +110,8 @@ public class AliyunAiApi {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "AI扩图失败：" + httpResponse.body());
             }
             GetOutPaintingTaskResponse response = JSONUtil.toBean(httpResponse.body(), GetOutPaintingTaskResponse.class);
-            String errCode = response.getOutput().getTaskId();
+            log.info("AI 扩图结果信息：{}", response);
+            String errCode = response.getOutput().getCode();
             if (StrUtil.isNotBlank(errCode)) {
                 String message = response.getOutput().getMessage();
                 log.info("AI扩图失败：{}", message);
