@@ -124,7 +124,7 @@ public abstract class PictureUploadTemplate {
 
         } catch (Exception e) {
             log.error("上传图片失败，文件源：{}，上传路径：{}", inputSource, uploadPath, e);
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传图片失败");
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传图片失败，上传的照片不能含有中文名称");
         } finally {
             // 8. 清理临时文件资源
             deleteTempFile(file);

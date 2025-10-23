@@ -32,6 +32,10 @@
                 <template #overlay>
                   <a-menu>
                     <a-menu-item>
+                      <EditOutlined />
+                    <router-link to="/user/info"> 个人资料</router-link>
+                  </a-menu-item>
+                    <a-menu-item>
                       <UserOutlined />
                       <router-link to="/my_space"> 我的空间</router-link>
                     </a-menu-item>
@@ -54,7 +58,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { HomeOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined, LogoutOutlined, UserOutlined ,EditOutlined} from '@ant-design/icons-vue'
 import { type MenuProps, message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
@@ -143,7 +147,7 @@ const doLogout = async () => {
 .title-bar {
   display: flex;
   align-items: center;
-  margin-left: 32px;
+  margin-left: 16px;
 }
 
 .title-bar .title {

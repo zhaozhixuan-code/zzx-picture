@@ -16,7 +16,7 @@ export default class PictureEditWebSocket {
     // TODO 修改线上配置
     const DEV_BASE_URL = "ws://localhost:8223";
     const PROD_BASE_URL = "ws://123.57.53.59";
-    const url = `${DEV_BASE_URL}/api/ws/picture/edit?pictureId=${this.pictureId}`
+    const url = `${PROD_BASE_URL}/api/ws/picture/edit?pictureId=${this.pictureId}`
 
     this.socket = new WebSocket(url)
 

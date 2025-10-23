@@ -1,6 +1,8 @@
 package com.zzx.zzxpicturebackend.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzx.zzxpicturebackend.annotation.AuthCheck;
 import com.zzx.zzxpicturebackend.common.BaseResponse;
@@ -123,6 +125,30 @@ public class UserController {
         if (!result) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR);
         }
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 编辑用户信息（用户）
+     *
+     * @param userEditRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/edit")
+    public BaseResponse<Boolean> editUser(@RequestBody UserEditRequest userEditRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(userEditRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(ObjUtil.isNull(loginUser), ErrorCode.NOT_LOGIN_ERROR);
+        ThrowUtils.throwIf(!loginUser.getId().equals(userEditRequest.getId()), ErrorCode.NO_AUTH_ERROR);
+        User user = new User();
+        BeanUtil.copyProperties(userEditRequest, user);
+        String userPassword = user.getUserPassword();
+        if (StrUtil.isNotBlank(userPassword)) {
+            String encryptionPassword = userService.getEncryptionPassword(userPassword);
+            user.setUserPassword(encryptionPassword);
+        }
+        boolean result = userService.updateById(user);
         return ResultUtils.success(result);
     }
 

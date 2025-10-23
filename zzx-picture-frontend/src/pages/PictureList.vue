@@ -9,46 +9,70 @@
       <template #renderItem="{ item: picture }">
         <a-list-item style="padding: 0">
           <!-- 单张图片 -->
-          <a-card hoverable @click="doClickPicture(picture)">
-            <template #cover>
+          <div class="picture-card-wrapper" @click="doClickPicture(picture)">
+            <div class="image-container">
               <img
-                style="height: 180px; object-fit: cover"
+                class="picture-image"
                 :alt="picture.name"
                 :src="picture.thumbnailUrl ?? picture.url"
                 loading="lazy"
               />
-            </template>
-            <a-card-meta :title="picture.name">
-              <template #description>
-                <a-flex>
-                  <a-tag color="green">
-                    {{ picture.category ?? '默认' }}
-                  </a-tag>
-                  <a-tag v-for="tag in picture.tags" :key="tag">
-                    {{ tag }}
-                  </a-tag>
-                </a-flex>
-              </template>
-            </a-card-meta>
-            <template v-if="showOp" #actions>
-              <a-space @click="(e) => doSearch(picture, e)">
-                <search-outlined />
-                搜索
-              </a-space>
-              <a-space @click="(e) => doEdit(picture, e)" v-if="canEdit">
-                <edit-outlined />
-                编辑
-              </a-space>
-              <a-space @click="(e) => doShare(picture, e)">
-                <ShareAltOutlined />
-                分享
-              </a-space>
-              <a-space @click="(e) => doDelete(picture, e)" v-if="canDelete">
-                <delete-outlined />
-                删除
-              </a-space>
-            </template>
-          </a-card>
+              <div class="overlay">
+                <div class="overlay-content">
+                  <!-- 标题放在顶部 -->
+                  <div class="overlay-title">
+                    <h3 class="picture-overlay-title">{{ picture.name }}</h3>
+                  </div>
+
+                  <!-- 分类和标签放在底部 -->
+                  <div class="overlay-bottom">
+                    <div class="tags-container">
+                      <a-tag color="green">
+                        {{ picture.category ?? '默认' }}
+                      </a-tag>
+                      <a-tag v-for="tag in picture.tags" :key="tag" color="blue">
+                        {{ tag }}
+                      </a-tag>
+                    </div>
+
+                    <!-- 操作按钮也放在底部 -->
+                    <div v-if="showOp" class="action-buttons-overlay">
+                      <a-button
+                        size="small"
+                        @click="(e) => doSearch(picture, e)"
+                        class="action-btn-overlay"
+                      >
+                        <search-outlined /> 搜索
+                      </a-button>
+                      <a-button
+                        size="small"
+                        v-if="canEdit"
+                        @click="(e) => doEdit(picture, e)"
+                        class="action-btn-overlay"
+                      >
+                        <edit-outlined /> 编辑
+                      </a-button>
+                      <a-button
+                        size="small"
+                        @click="(e) => doShare(picture, e)"
+                        class="action-btn-overlay"
+                      >
+                        <ShareAltOutlined /> 分享
+                      </a-button>
+                      <a-button
+                        size="small"
+                        v-if="canDelete"
+                        @click="(e) => doDelete(picture, e)"
+                        class="action-btn-overlay"
+                      >
+                        <delete-outlined /> 删除
+                      </a-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </a-list-item>
       </template>
     </a-list>
@@ -145,4 +169,112 @@ const doShare = (picture: API.PictureVO, e: Event) => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.picture-card-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  cursor: pointer;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.picture-card-wrapper:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.image-container {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.picture-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-container:hover .picture-image {
+  transform: scale(1.05);
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  color: white;
+}
+
+.image-container:hover .overlay {
+  opacity: 1;
+}
+
+.overlay-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px;
+}
+
+.overlay-title {
+  text-align: center;
+}
+
+.picture-overlay-title {
+  margin: 0;
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.overlay-bottom {
+  width: 100%;
+}
+
+.tags-container {
+  margin-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.action-buttons-overlay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.action-btn-overlay {
+  flex: 1;
+  min-width: calc(50% - 4px);
+  font-size: 12px;
+  justify-content: center;
+}
+
+@media (max-width: 576px) {
+  .action-btn-overlay {
+    min-width: 100%;
+  }
+}
+</style>
