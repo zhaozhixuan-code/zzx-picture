@@ -64,7 +64,8 @@
 - AI文生图能力
 - 智能缓存优化机制
 - 可视化数据统计
+![img.png](img/img6.png)
 
-![img_1.png](img/img_4.png)
+![img_1.png](img/img4.png)
 
 ![img.png](img/img5.png)
